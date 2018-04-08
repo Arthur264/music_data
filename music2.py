@@ -1,6 +1,9 @@
 import requests
 from database.db_connect import db
 from bs4 import BeautifulSoup
+import json
+import requests
+import urllib2
 import sys  
 reload(sys)  
 sys.setdefaultencoding('utf-8')
@@ -34,14 +37,25 @@ def insert(img, artist, song_time, song_name, song_link):
                 "VALUES(N'{i}', N'{a}', N'{t}', N'{n}',N'{l}')".format(p=prefix, i=img, a=artist, t=song_time, n=song_name, l=song_link)
     db.insert(query_data)
     
-
+def get_image_google(text):
+    url="https://www.google.co.in/search?q={0}&source=lnms&tbm=isch".format(text)
+    header= "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36"
+    res = requests.get("https://www.google.co.in/search", 
+              params={'q': text + 'group', 'source': 'lnms', 'tbm': 'isch'}, 
+              headers={'User-Agent': header})
+    soup = BeautifulSoup(res.content)
+    a = soup.find("div",{"class":"rg_meta"})
+    link , Type =json.loads(a.text)["ou"]  ,json.loads(a.text)["ity"]
+    print("text", text, "link",link)
+    return link
+    
 def parse(data):
     for item in data:
+        artist = text_encode(item.find("div", {"class": "song-artist"}).a.span.string)
         try:
             img = base_url + item.find("div", {"class": "song-img"}).img['data-original']
         except:
             img = None
-        artist = text_encode(item.find("div", {"class": "song-artist"}).a.span.string)
         song_time = item.find("span", {"class": "song-time"}).get_text()
         song_name = text_encode(item.find("div", {"class": "song-name"}).a.span.string)
         song_link = base_url +  item.find("span", {"class": "song-download"})['data-url']
@@ -68,9 +82,11 @@ def all():
             print(n, m)
             res = requests.get(base_url + '/artist/' + str(n) + '/?page=' + str(m))
             soup = BeautifulSoup(res.text)
+            try:
+                next = soup.find("a", {"class": "next-btn"}).get("class")
+            except:
+                break
             
-            next = soup.find("a", {"class": "next-btn"}).get("class")
-            print("next", next)
             if "disabled" in next:
                 break
             else:
@@ -78,4 +94,6 @@ def all():
                 parse(dataset)
 
 all()
+
+
 
