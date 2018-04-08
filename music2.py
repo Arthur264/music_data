@@ -63,8 +63,8 @@ def main():
 
 
 def all():
-    for n in range(28931):
-        for m in range(1000):
+    for n in range(1, 28931):
+        for m in range(1, 1000):
             print(n, m)
             res = requests.get(base_url + '/artist/' + str(n) + '/?page=' + str(m))
             soup = BeautifulSoup(res.text)
@@ -76,5 +76,6 @@ def all():
             else:
                 dataset = soup.find("section", {"id": "container"}).findAll("div", { "class": "song" })
                 parse(dataset)
-            
+
+all()
 
