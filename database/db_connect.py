@@ -19,9 +19,12 @@ class MyDB(object):
         try:
             self.cur.execute(query)
             self.connection.commit()
+            return True
         except Exception as e:
             # print("insert error", e)
             self.connection.rollback()
+            return False
+            
 
     def query(self, query):
         self.cur.execute(query)
