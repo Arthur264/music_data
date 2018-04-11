@@ -36,5 +36,4 @@ class MyDB(object):
         self.connection.close()
         
         
-        
 db = MyDB()

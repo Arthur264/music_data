@@ -10,14 +10,8 @@ reload(sys)
 sys.setdefaultencoding('utf-8')
 
 base_url = 'http://zk.fm'
-prefix = 'all3'
+prefix = 'all'
 
-def text_encode(text):
-    # try:
-    #     result = text.encode('utf-8').decode('latin-1')
-    # except:
-    #     result = text 
-    return text
     
 def create_table():
     query_data = """CREATE TABLE dataset_{0}(
@@ -39,13 +33,11 @@ def create_table():
     db.query(query_artist)
     
 def insert_data(artist, song_time, song_name, song_link):
-    # print(img, artist, song_time, song_name, song_link)
     query_data = u"INSERT INTO dataset_{p}(artist,time,name,link)"\
                 "VALUES(N'{a}', N'{t}', N'{n}',N'{l}')".format(p=prefix, a=artist, t=song_time, n=song_name, l=song_link)
     db.insert(query_data)
     
 def insert_artist(id, artist):
-    # print(img, artist, song_time, song_name, song_link)
     img = get_image_google(artist)
     query_data = u"INSERT INTO dataset_{p}_artist(id,artist, img)"\
                 "VALUES(N'{i}', N'{a}', N'{m}')".format(p=prefix, a=artist, i=id, m=img)
@@ -54,7 +46,6 @@ def insert_artist(id, artist):
     return False
     
 def get_image_google(text):
-    url="https://www.google.co.in/search?q={0}&source=lnms&tbm=isch".format(text)
     header= "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36"
     res = requests.get("https://www.google.co.in/search", 
               params={'q': text + 'group', 'source': 'lnms', 'tbm': 'isch'}, 
@@ -62,24 +53,17 @@ def get_image_google(text):
     soup = BeautifulSoup(res.content)
     a = soup.find("div",{"class":"rg_meta"})
     try:
-        link , Type =json.loads(a.text)["ou"]  ,json.loads(a.text)["ity"]
+        link =json.loads(a.text)["ou"]
     except:
         link = None
-    # print("text", text, "link",link)
     return link
     
 def parse(data, n):
     for item in data:
-        # artist = text_encode(item.find("div", {"class": "song-artist"}).a.span.string)
-        artist = n
-        try:
-            img = base_url + item.find("div", {"class": "song-img"}).img['data-original']
-        except:
-            img = None
         song_time = item.find("span", {"class": "song-time"}).get_text()
-        song_name = text_encode(item.find("div", {"class": "song-name"}).a.span.string)
+        song_name = item.find("div", {"class": "song-name"}).a.span.string
         song_link = base_url +  item.find("span", {"class": "song-download"})['data-url']
-        insert_data(artist, song_time, song_name, song_link)
+        insert_data(n, song_time, song_name, song_link)
 
 
 
@@ -87,14 +71,6 @@ db.remove_table('dataset_{0}'.format(prefix))
 db.remove_table('dataset_{0}_artist'.format(prefix))    
 create_table()
 
-def main():
-    for n in range(1000):
-        print(n)
-        res = requests.get(base_url + '/?page=' + str(n))
-        soup = BeautifulSoup(res.text)
-        dataset = soup.find("section", {"id": "container"}).findAll("div", { "class": "song" })
-        # parse(dataset)
-    
 def sendSMS(n):
     message = client.messages.create(
     to="+380988977842", 
@@ -104,7 +80,7 @@ def sendSMS(n):
 
 def all():
     for n in range(1, 28931):
-        if n%5 == 0:
+        if n%1000 == 0:
             sendSMS(n)
         res1 = requests.get(base_url + '/artist/' + str(n))
         soup1 = BeautifulSoup(res1.text)
@@ -113,7 +89,6 @@ def all():
             h1 = h1[1:-1]
         except:
             continue
-        print(h1)
         if insert_artist(n, h1):
             for m in range(1, 1000):
                 print(n, m)
