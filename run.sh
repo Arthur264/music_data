@@ -1,0 +1,1 @@
+sudo nohup /home/ubuntu/music_data/music.py &
