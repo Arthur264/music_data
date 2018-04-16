@@ -1,7 +1,7 @@
 import MySQLdb
 class MyDB(object):
     def __init__(self):
-        self.connection = MySQLdb.connect("localhost", "root", "123", "music")
+        self.connection = MySQLdb.connect("localhost", "root", "", "music")
         self.cur = self.connection.cursor()
         self.cur.execute('SET NAMES utf8;')
         self.cur.execute('SET CHARACTER SET utf8;')

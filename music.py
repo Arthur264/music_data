@@ -12,7 +12,13 @@ sys.setdefaultencoding('utf-8')
 base_url = 'http://zk.fm'
 prefix = 'all'
 
-    
+def text_encode(text):
+    try:
+       result = text.encode('utf-8').decode('latin-1')
+    except:
+       result = text 
+    return text
+
 def create_table():
     query_data = """CREATE TABLE dataset_{0}(
                id INT NOT NULL AUTO_INCREMENT,
@@ -61,15 +67,15 @@ def get_image_google(text):
 def parse(data, n):
     for item in data:
         song_time = item.find("span", {"class": "song-time"}).get_text()
-        song_name = item.find("div", {"class": "song-name"}).a.span.string
+        song_name = text_encode(item.find("div", {"class": "song-name"}).a.span.string)
         song_link = base_url +  item.find("span", {"class": "song-download"})['data-url']
         insert_data(n, song_time, song_name, song_link)
 
 
 
-db.remove_table('dataset_{0}'.format(prefix))    
-db.remove_table('dataset_{0}_artist'.format(prefix))    
-create_table()
+# db.remove_table('dataset_{0}'.format(prefix))    
+# db.remove_table('dataset_{0}_artist'.format(prefix))    
+# create_table()
 
 def sendSMS(n):
     message = client.messages.create(
@@ -79,14 +85,14 @@ def sendSMS(n):
     print(message.sid)
 
 def all():
-    for n in range(1, 28931):
+    for n in range(33968, 100000):
         if n%1000 == 0:
             sendSMS(n)
         res1 = requests.get(base_url + '/artist/' + str(n))
         soup1 = BeautifulSoup(res1.text)
         try:
-            h1 = soup1.find("div", { "class": "site-description" }).find("strong").string
-            h1 = h1[1:-1]
+            h1 = text_encode(soup1.find("title").string)
+            h1 = h1.split(":")[0]
         except:
             continue
         if insert_artist(n, h1):

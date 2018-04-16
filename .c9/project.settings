@@ -1,4 +1,10 @@
 {
+    "ace": {
+        "@newLineMode": "unix"
+    },
+    "build": {
+        "@saveall": true
+    },
     "instance": {
         "@automaticShutdown": "30"
     },
