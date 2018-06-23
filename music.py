@@ -85,7 +85,7 @@ def sendSMS(n):
     print(message.sid)
 
 def all():
-    for n in range(33968, 100000):
+    for n in range(44544, 100000):
         if n%1000 == 0:
             sendSMS(n)
         res1 = requests.get(base_url + '/artist/' + str(n))
