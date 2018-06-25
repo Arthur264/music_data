@@ -1,0 +1,57 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Zvukoff: ОЙ! ОШИБКА 404</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+    <link href="/themes/classic/assets/css/main.css" rel="stylesheet" type="text/css" />
+    <link href="/themes/classic/assets/css/404.css" rel="stylesheet" type="text/css" />
+
+
+    <script src="/themes/classic/assets/js/jquery.min.js" type="text/javascript"></script>
+    <script src="/themes/classic/assets/js/tooltip.js" type="text/javascript"></script>
+    <script src="/themes/classic/assets/js/main.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        $(function(){$("#topkeywords").focus();})
+    </script>
+</head>
+<body>
+<div class="allwrapper">
+    <div class="wrapper">
+
+        <div id="page_404">
+            <div class="header_404">
+                <a href="/" class="prev-btn blue"><span><b><i>На главную</i></b></span></a>
+                <div class="logo2_wrap">
+                    <a href="/" class="logo2"><img src="/themes/classic/assets/images/logo.png" alt="" /></a>
+                </div>
+            </div>
+            <div class="content_404">
+                <h1>ОЙ! ОШИБКА 404:</h1>
+                <div class="information">
+                    Мы не смогли найти данную страницу,<br/>
+                    попробуйте ещё раз или воспользуйтесь поиском
+                </div>
+                <div class="search_wrap">
+                    <div class="search">
+                        <div class="search_borders">
+                            <form action="/mp3/search" method="get">
+                                <div class="inp-wrap">
+                                    <input id="topkeywords" name="keywords" class="text" type="text" />
+                                    <a class="clear"></a>
+                                </div>
+                                <input class="btn2" type="submit" value="Найти" />
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div><!-- #404 -->
+
+    </div><!---.wrapper-->
+</div><!--.allwrapper-->
+
+
+</body>
+</html>

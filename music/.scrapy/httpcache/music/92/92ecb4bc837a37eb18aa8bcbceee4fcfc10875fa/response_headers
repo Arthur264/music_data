@@ -1,0 +1,11 @@
+X-Xss-Protection: 1; mode=block
+Content-Encoding: gzip
+Set-Cookie: 1P_JAR=2018-06-25-17; expires=Wed, 25-Jul-2018 17:43:09 GMT; path=/; domain=.google.com
+Set-Cookie: NID=133=ZXAH7CGmciaLrg34d-NcEWZERrYnsg74lZJxNGsK5vH-Mqj809ZKAPXSHW6cEJrSdBZClFVf0hxpj5mcUrWppwhNUQ_lRuh5_gxYq6h-6SEMHZk4Ssp80npWn6SxB1M9; expires=Tue, 25-Dec-2018 17:43:09 GMT; path=/; domain=.google.com; HttpOnly
+Expires: -1
+Server: gws
+Cache-Control: private, max-age=0
+Date: Mon, 25 Jun 2018 17:43:09 GMT
+P3P: CP="This is not a P3P policy! See g.co/p3phelp for more info."
+Content-Type: text/html; charset=UTF-8
+X-Frame-Options: SAMEORIGIN

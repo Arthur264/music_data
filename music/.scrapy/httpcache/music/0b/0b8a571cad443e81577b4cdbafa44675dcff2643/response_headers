@@ -1,0 +1,9 @@
+Content-Encoding: gzip
+Vary: Accept-Encoding
+Server: cloudflare
+Last-Modified: Sun, 24 Jun 2018 10:50:00 GMT
+Pragma: 
+Cache-Control: public, max-age=3600, no-cache, must-revalidate
+Date: Sun, 24 Jun 2018 10:11:02 GMT
+Cf-Ray: 42fe68733178b75f-CDG
+Content-Type: text/html; charset=UTF-8

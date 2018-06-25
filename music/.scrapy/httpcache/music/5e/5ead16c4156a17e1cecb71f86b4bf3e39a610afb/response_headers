@@ -1,0 +1,9 @@
+X-Xss-Protection: 1; mode=block
+Expires: Fri, 01 Jan 1990 00:00:00 GMT
+Server: HTTP server (unknown)
+Location: https://www.google.com/sorry/index?continue=https://www.google.com/search%3Fq%3DStudio%2BB%2BFeat.%2BRomeo%2BAnd%2BH.%2BBrooks%252Bgroup%26source%3Dlnms%26safe%3Dactive%26tbm%3Disch&q=EgQjwwWqGN7TxNkFIhkA8aeDS3QN_1_STHGmaTkyd_a2Bt3Xm0-iMgFy
+Pragma: no-cache
+Cache-Control: no-store, no-cache, must-revalidate
+Date: Mon, 25 Jun 2018 17:43:59 GMT
+X-Frame-Options: SAMEORIGIN
+Content-Type: text/html; charset=UTF-8
