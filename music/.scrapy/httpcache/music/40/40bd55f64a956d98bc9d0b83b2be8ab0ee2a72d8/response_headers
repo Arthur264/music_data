@@ -1,8 +1,0 @@
-X-Xss-Protection: 1; mode=block
-Expires: Fri, 01 Jan 1990 00:00:00 GMT
-Server: HTTP server (unknown)
-Pragma: no-cache
-Cache-Control: no-store, no-cache, must-revalidate
-Date: Mon, 25 Jun 2018 17:44:32 GMT
-X-Frame-Options: SAMEORIGIN
-Content-Type: text/html

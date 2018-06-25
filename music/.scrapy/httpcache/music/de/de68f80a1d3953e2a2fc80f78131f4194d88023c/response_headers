@@ -1,9 +1,0 @@
-X-Xss-Protection: 1; mode=block
-Content-Encoding: gzip
-Set-Cookie: 1P_JAR=2018-06-25-17; expires=Wed, 25-Jul-2018 17:43:10 GMT; path=/; domain=.google.com
-Expires: -1
-Server: gws
-Cache-Control: private, max-age=0
-Date: Mon, 25 Jun 2018 17:43:10 GMT
-X-Frame-Options: SAMEORIGIN
-Content-Type: text/html; charset=UTF-8

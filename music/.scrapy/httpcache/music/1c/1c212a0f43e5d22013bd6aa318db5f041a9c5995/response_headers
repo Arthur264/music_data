@@ -1,9 +1,0 @@
-X-Xss-Protection: 1; mode=block
-Expires: Fri, 01 Jan 1990 00:00:00 GMT
-Server: HTTP server (unknown)
-Location: https://www.google.com/sorry/index?continue=https://www.google.com/search%3Fq%3DHolly%2BValance%252Bgroup%26source%3Dlnms%26safe%3Dactive%26tbm%3Disch&q=EgQjwwWqGP7TxNkFIhkA8aeDS0ilXjQ0Kjd_8SaxLq68146z_KIhMgFy
-Pragma: no-cache
-Cache-Control: no-store, no-cache, must-revalidate
-Date: Mon, 25 Jun 2018 17:44:31 GMT
-X-Frame-Options: SAMEORIGIN
-Content-Type: text/html; charset=UTF-8
