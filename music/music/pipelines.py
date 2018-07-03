@@ -20,10 +20,10 @@ class MusicPipeline(object):
         db = self.connection[settings['MONGODB_DB']]
         self.item = db[settings['MONGODB_COLLECTION_ITEM']]
         self.artict = db[settings['MONGODB_COLLECTION_ARTICT']]
-            
+
     def close_spider(self, spider):
             self.connection.close()
-            
+
     def process_item(self, item, spider):
         valid = True
         for data in item:
@@ -40,4 +40,3 @@ class MusicPipeline(object):
                 log.msg("Artist added to MongoDB database!",
                         level=log.DEBUG, spider=spider)
         return item
-
