@@ -7,7 +7,6 @@ from urllib import urlencode
 from music.items import MusicItem, ArtistItem
 
 BASE_URL = 'http://zk.fm'
-DEFAULT_ARTIST = 'http://www.collectionsocietegenerale.com/data/artiste_a0e33/fiche/4733/large_large_artist_generique_2e4c9.gif'
 HEADERS= {
     'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
     'accept-encoding': 'gzip, deflate, br',
@@ -78,7 +77,7 @@ class ZkSpider(scrapy.Spider):
     def getlink(self, response):
         a = response.css("div.rg_meta::text").extract_first()
         try:
-            link =json.loads(a)["ou"]
+            link = json.loads(a)["ou"]
         except:
             link = DEFAULT_ARTIST
         yield ArtistItem(id=response.meta['artict'], name=response.meta['name'], image=link)
@@ -108,6 +107,5 @@ class ZkSpider(scrapy.Spider):
         return result
 
     def error(e,response):
-        # import pdb; pdb.set_trace()
         print("Error:", e, response)
         return True

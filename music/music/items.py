@@ -20,3 +20,6 @@ class ArtistItem(scrapy.Item):
     id = scrapy.Field()
     name = scrapy.Field()
     image = scrapy.Field()
+
+class TagsItem(scrapy.Item):
+    name = scrapy.Field()
