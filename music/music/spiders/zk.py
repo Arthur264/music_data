@@ -7,14 +7,6 @@ from urllib import urlencode
 from music.items import MusicItem, ArtistItem
 
 BASE_URL = 'http://zk.fm'
-DEFAULT_ARTIST = 'http://www.collectionsocietegenerale.com/data/artiste_a0e33/fiche/4733/large_large_artist_generique_2e4c9.gif'
-HEADERS = {
-    'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-    'accept-encoding': 'gzip, deflate, br',
-    'accept-language': 'en-US,en;q=0.9,uk;q=0.8',
-    'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.87 Safari/537.36',
-    'x-client-data': 'CIe2yQEIo7bJAQipncoBCLKdygEI2J3KAQioo8oBGJiYygE='
-}
 HEADERS2 = {
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
     'Accept-Encoding': 'gzip, deflate',
@@ -111,7 +103,6 @@ class ZkSpider(scrapy.Spider):
                 result.append(item[0])
         return result
 
-    def error(e, response):
-        # import pdb; pdb.set_trace()
+    def error(e,response):
         print("Error:", e, response)
         return True
