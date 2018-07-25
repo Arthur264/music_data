@@ -16,27 +16,29 @@ class MusicPipeline(object):
     current_time = time.strftime("%Y_%m_%d_%H_%M_%S")
 
     def __init__(self):
-        self.file_item = open("music_{}.json".format(self.current_time), 'wb')
-        self.item = JsonItemExporter(self.file_item, encoding='utf-8', ensure_ascii=False)
-        self.item.start_exporting()
-        self.file_artist = open("artist_{}.json".format(self.current_time), 'wb')
-        self.artist = JsonItemExporter(self.file_artist, encoding='utf-8', ensure_ascii=False)
-        self.artist.start_exporting()
+        pass
+        # self.file_item = open("music_{}.json".format(self.current_time), 'wb')
+        # self.item = JsonItemExporter(self.file_item, encoding='utf-8', ensure_ascii=False)
+        # self.item.start_exporting()
+        # self.file_artist = open("artist_{}.json".format(self.current_time), 'wb')
+        # self.artist = JsonItemExporter(self.file_artist, encoding='utf-8', ensure_ascii=False)
+        # self.artist.start_exporting()
 
     def close_spider(self, spider):
-        self.item.finish_exporting()
-        self.item.close()
-
-        self.artist.finish_exporting()
-        self.artist.close()
+        pass
+        # self.item.finish_exporting()
+        # self.item.close()
+        #
+        # self.artist.finish_exporting()
+        # self.artist.close()
 
     def process_item(self, item, spider):
         if item.__class__.__name__ == "MusicItem":
-            self.item.export_item(item)
+            # self.item.export_item(item)
             log.msg("Item added to MongoDB database!",
                     level=log.DEBUG, spider=spider)
         else:
-            self.artist.export_item(item)
+            # self.artist.export_item(item)
             log.msg("Artist added to MongoDB database!",
                     level=log.DEBUG, spider=spider)
         return item

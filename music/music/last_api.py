@@ -1,4 +1,6 @@
-from urllib.parse import urljoine, urlencode, urlunparse, urlparse
+import json
+from urllib import urlencode
+from urlparse import urlunparse, urlparse
 import scrapy
 
 API_KEY = '019606439d302ebbbff19dfeed1c342b'
@@ -17,26 +19,47 @@ class LastFm(object):
         params = {'method': 'artist.getinfo', 'artist': name}
         yield scrapy.Request(self.get_url(params),
                             callback=self._make_artict,
-                            meta=params,
-                            errorback=self.error_request)
+                            meta=params)
 
     def get_song(self, artist, song):
         params = {'method': 'track.getInfo', 'artist':artist, 'track':song}
         yield scrapy.Request(self.get_url(params),
                             callback=self._make_song,
-                            meta=params,
-                            errorback=self.error_request)
+                            meta=params)
 
     def _make_artict(self, response):
         params = response.meta.get('params')
         jsonresponse = json.loads(response.body_as_unicode())
+        artist = jsonresponse['artist']
+            artict_info = {
+            'name': artist['name'],
+            'image': artist['image'][-2]['#text'],
+            'listeners': artist['stats']['listeners'],
+            'playcount': artist['stats']['playcount'],
+            'similar': [],
+            'tags': [],
+            'biography': {
+                'published': artist['bio']['published'],
+                'summary': artist['bio']['summary'],
+                'content': artist['bio']['content']
+            }
+        }
+        for similar in artist['similar']['artist']:
+            artict_info['similar'].append({'name': similar['name']})
+        for tag in artist['tags']['tag']:
+            artict_info['tags'].append({'name': tag['name']})
+
+    def _make_song(self, response):
+        params = response.meta.get('params')
+        jsonresponse = json.loads(response.body_as_unicode())
+        # print(jsonresponse)
 
 
+    def get_url(self, params):
+        params.update(self.default_params)
+        return self.api_url + '?' + urlencode(params)
 
-    def get_url(params = {}):
-        parser = urlparse(self.api_url)
-        params.update(default_params)
-        parser[4] = urlencode(query_params)
-        return urlparse.urlunparse(parser)
+    def error_request(self, ex, response):
+        pass
 
 lastfm = LastFm()
