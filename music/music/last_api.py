@@ -31,7 +31,7 @@ class LastFm(object):
         params = response.meta.get('params')
         jsonresponse = json.loads(response.body_as_unicode())
         artist = jsonresponse['artist']
-            artict_info = {
+        artict_info = {
             'name': artist['name'],
             'image': artist['image'][-2]['#text'],
             'listeners': artist['stats']['listeners'],
@@ -52,7 +52,17 @@ class LastFm(object):
     def _make_song(self, response):
         params = response.meta.get('params')
         jsonresponse = json.loads(response.body_as_unicode())
-        # print(jsonresponse)
+        track = jsonresponse['track']
+        track_info = {
+            'name': track['name'],
+            'artist': track['artist']['name'],
+            'image': track['album']['image'][-1]['#text'],
+            'listeners': track['listeners'],
+            'playcount': track['playcount'],
+            'tags': []
+        }
+        for tag in artist['toptags']['tag']:
+            track_info['tags'].append({'name': tag['name']})
 
 
     def get_url(self, params):

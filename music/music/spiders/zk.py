@@ -40,8 +40,8 @@ class ZkSpider(scrapy.Spider):
         title = title_selector.rstrip().strip()
         if not title:
             return
-        for r in lastfm.get_artist(title):
-            yield r
+        # for r in lastfm.get_artist(title):
+        #     yield r
 
         # yield ArtistItem(id=response.meta['atrict'], name=title, image=DEFAULT_ARTIST)
         response.meta['artist_name'] = title
