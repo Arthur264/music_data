@@ -1,2 +1,5 @@
 data/
 music/data_result/
+music/music_data/
+music/.scrapy/
+*.pyc
