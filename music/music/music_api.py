@@ -1,39 +1,31 @@
 import json
-from urllib import urlencode
-from urlparse import urlunparse, urlparse
-import scrapy
+from urlparse import urljoin
+import requests
 
-API_KEY = '019606439d302ebbbff19dfeed1c342b'
+Headers = {
+    'Accept': 'text/html; q=1.0, */*',
+    'Accept-Encoding': 'gzip, deflate',
+    'Accept-Language': 'en-US,en;q=0.9,uk;q=0.8',
+    'Host': 'music-artyr264.c9users.io:8080',
+    'Origin': 'http://music-artyr264.c9users.io:8080',
+    'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36',
+    'X-Requested-With': 'XMLHttpRequest',
+    'Content-Type': 'application/json'
+}
+
 
 class MusicApi(object):
-    """docstring for Last."""
-    api_url = 'http://ws.audioscrobbler.com/2.0/'
-    default_params = {
-        'api_key': API_KEY,
-        'format': 'json'
-    }
+    api_url = 'http://music-artyr264.c9users.io:8080/api/v1/{}/?format=json'
+
     def __init__(self):
         pass
 
-    def send_artist(self, name):
-        params = {'method': 'artist.getinfo', 'artist': name}
-        yield scrapy.Request(self.get_url(params),
-                            callback=self._make_artict,
-                            meta=params)
+    def make_request(self, body, name):
+        data = requests.post(self.get_url(name), headers=Headers, data=json.dumps(body))
+        return data
 
-    def send_song(self, artist, song):
-        params = {'method': 'track.getInfo', 'artist':artist, 'track':song}
-        yield scrapy.Request(self.get_url(params),
-                            callback=self._make_song,
-                            meta=params)
+    def get_url(self, url):
+        return self.api_url.format(url)
 
 
-
-    def get_url(self, params):
-        params.update(self.default_params)
-        return self.api_url + '?' + urlencode(params)
-
-    def error_request(self, ex, response):
-        pass
-
-lastfm = LastFm()
+musicApi = MusicApi()

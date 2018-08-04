@@ -5,7 +5,6 @@ import random
 from urlparse import urljoin
 from urllib import urlencode
 from music.last_api import lastfm
-from music.items import MusicItem, ArtistItem
 
 BASE_URL = 'http://zk.fm'
 HEADERS = {
@@ -23,52 +22,55 @@ class ZkSpider(scrapy.Spider):
 
     def start_requests(self):
         for n in range(91294, 100000):
-            # print("Count:", n)
+            print("Count:", n)
             yield scrapy.Request(url=BASE_URL + '/artist/' + str(n),
-                                 meta={'atrict': n, 'handle_httpstatus_all': True, "dont_merge_cookie": True},
+                                 meta={
+                                     'atrict': n, 'handle_httpstatus_all': True, "dont_merge_cookie": True},
                                  errback=self.error,
                                  headers=HEADERS,
                                  callback=self.parse)
 
     def parse(self, response):
-        print("url", response.request.url, response.status)
         if response.status in [404]:
             return
-        title_selector = response.css("#container .title_box h1::text").extract_first()
+        title_selector = response.css(
+            "#container .title_box h1::text").extract_first()
         if not title_selector:
             return
         title = title_selector.rstrip().strip()
         if not title:
             return
-        # for r in lastfm.get_artist(title):
-        #     yield r
-
-        # yield ArtistItem(id=response.meta['atrict'], name=title, image=DEFAULT_ARTIST)
-        response.meta['artist_name'] = title
-        for r in self.get_items(response):
+        for r in lastfm.get_artist(title):
             yield r
+
+        # response.meta['artist_name'] = title
+        # for r in self.get_items(response):
+        #     yield r
 
     def get_items(self, response):
         atrict = response.meta['atrict']
         artist_name = response.meta['artist_name']
         for item in response.css("#container .song"):
             try:
-                song_time = item.css("span.song-time::text").extract_first().strip()
-                song_name = self.text_encode(item.css("div.song-name a span::text").extract_first().strip())
-                if not song_name:
+                song_info = {
+                    'name': self.text_encode(item.css("div.song-name a span::text").extract_first().strip()),
+                    'time': item.css("span.song-time::text").extract_first().strip(),
+                    'url': self.get_url(item.css("span.song-download").xpath('@data-url').extract_first()),
+                    'artist': artist_name
+                }
+                if not song_info['name']:
                     continue
-                song_link = self.get_url(item.css("span.song-download").xpath('@data-url').extract_first())
             except AttributeError as e:
                 continue
-            for r in lastfm.get_song(artist_name, song_name):
-                yield r
-            # yield MusicItem(artict=atrict, time=song_time, name=song_name, url=song_link)
 
+            for r in lastfm.get_song(artist_name, song_info):
+                yield r
         next_page = response.css("a.next-btn")
         if next_page and 'disabled' not in next_page.xpath("@class").extract_first():
             url = self.get_url(next_page.xpath("@href").extract_first())
             yield scrapy.Request(url,
-                                 meta={"atrict": atrict, "dont_merge_cookie": True, 'artist_name': artist_name},
+                                 meta={
+                                     "atrict": atrict, "dont_merge_cookie": True, 'artist_name': artist_name},
                                  headers=HEADERS,
                                  callback=self.get_items)
 
@@ -96,6 +98,6 @@ class ZkSpider(scrapy.Spider):
                 result.append(item[0])
         return result
 
-    def error(e,response):
+    def error(e, response):
         print("Error:", e, response)
         return True
