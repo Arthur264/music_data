@@ -1,5 +1,6 @@
 import json
 from urllib import urlencode
+from music_api import musicApi
 from urlparse import urlunparse, urlparse
 from music.items import MusicItem, ArtistItem
 import scrapy
@@ -46,51 +47,52 @@ class LastFm(object):
                              meta=params)
 
     def _make_artict(self, response):
-        jsonresponse = json.loads(response.body_as_unicode())
-        if not jsonresponse or jsonresponse.get('error') and jsonresponse['error'] == 6:
-            yield ArtistItem(name=response.meta.get('artist'))
-            return
-        artist = jsonresponse['artist']
         artict_info = {
-            'name': self.get_field(artist, ['name']),
-            'image': self.get_field(artist, ['image', -2, '#text']),
-            'listeners_fm': self.get_field(artist, ['stats', 'listeners']),
-            'playcount_fm': self.get_field(artist, ['stats', 'playcount']),
-            'similar': [],
-            'tag': [],
-            'published': self.get_field(artist, ['bio', 'published']),
-            'summary': self.get_field(artist, ['bio', 'summary']),
-            'content': self.get_field(artist, ['bio', 'content'])
+            'name': response.meta.get('artist'),
         }
-        similars = self.get_field(artist, ['similar', 'artist'])
-        if similars:
-            for similar in similars:
-                artict_info['similar'].append({'name': similar['name']})
-        tags = self.get_field(artist, ['tags', 'tag'])
-        if tags:
-            for tag in tags:
-                artict_info['tag'].append({'name': tag['name']})
+        jsonresponse = json.loads(response.body_as_unicode())
+        if jsonresponse and not jsonresponse.get('error'):
+            artist = jsonresponse['artist']
+            artict_info.update({
+                'image': self.get_field(artist, ['image', -2, '#text']),
+                'listeners_fm': self.get_field(artist, ['stats', 'listeners']),
+                'playcount_fm': self.get_field(artist, ['stats', 'playcount']),
+                'similar': [],
+                'tag': [],
+                'published': self.get_field(artist, ['bio', 'published']).split(',')[0].strip(),
+                'content': self.get_field(artist, ['bio', 'content'])
+            })
+            similars = self.get_field(artist, ['similar', 'artist'])
+            if similars:
+                for similar in similars:
+                    artict_info['similar'].append({'name': similar['name']})
+            tags = self.get_field(artist, ['tags', 'tag'])
+            if tags:
+                for tag in tags:
+                    artict_info['tag'].append({'name': tag['name']})
 
-        yield ArtistItem(artict_info)
+        for r in musicApi.make_request(artict_info, 'artist'):
+            yield r
 
     def _make_song(self, response):
         song = response.meta.get('item')
-        jsonresponse = json.loads(response.body_as_unicode())
-        if not jsonresponse or jsonresponse.get('error') and jsonresponse['error'] == 6:
-            yield MusicItem(song)
-            return
-        track = jsonresponse['track']
         track_info = {
-            'name': self.get_field(track, ['name']),
+            'name': song['name'],
             'url': song['url'],
             'time': song['time'],
             'artist': song['artist'],
-            'image': self.get_field(track, ['album', 'image', -1, '#text']),
-            'listeners_fm': self.get_field(track, ['listeners']),
-            'playcount_fm': self.get_field(track, ['playcount']),
         }
+        jsonresponse = json.loads(response.body_as_unicode())
+        if jsonresponse and not jsonresponse.get('error'):
+            track = jsonresponse['track']
+            track_info.update({
+                'image': self.get_field(track, ['album', 'image', -1, '#text']),
+                'listeners_fm': self.get_field(track, ['listeners']),
+                'playcount_fm': self.get_field(track, ['playcount']),
+            })
 
-        yield MusicItem(track_info)
+        for r in musicApi.make_request(track_info, 'song'):
+            yield r
 
     def get_url(self, params):
         params.update(self.default_params)

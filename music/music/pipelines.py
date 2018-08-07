@@ -10,5 +10,6 @@ class MusicPipeline(MediaPipeline):
 
     def process_item(self, item, spider):
         api_name = 'song' if item.__class__.__name__ == "MusicItem" else 'artist'
-        musicApi.make_request(dict(item), api_name)
-        return item
+        for r in musicApi.make_request(dict(item), api_name):
+            yield r
+        return

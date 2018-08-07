@@ -1,4 +1,5 @@
 import json
+import scrapy
 from urlparse import urljoin
 import requests
 
@@ -21,11 +22,11 @@ class MusicApi(object):
         pass
 
     def make_request(self, body, name):
-        data = requests.post(self.get_url(name), headers=Headers, data=json.dumps(body))
-        return data
+        yield scrapy.Request(self.get_url(name),headers=Headers, method='POST', body=json.dumps(body))
 
     def get_url(self, url):
         return self.api_url.format(url)
+
 
 
 musicApi = MusicApi()

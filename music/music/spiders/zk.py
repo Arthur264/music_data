@@ -17,11 +17,11 @@ HEADERS = {
 
 class ZkSpider(scrapy.Spider):
     name = 'music'
-    allowed_domains = ['zk.fm', 'ws.audioscrobbler.com']
+    allowed_domains = ['zk.fm', 'ws.audioscrobbler.com', 'music-artyr264.c9users.io']
     handle_httpstatus_list = [304]
 
     def start_requests(self):
-        for n in range(91294, 100000):
+        for n in range(1, 10000):
             print("Count:", n)
             yield scrapy.Request(url=BASE_URL + '/artist/' + str(n),
                                  meta={
@@ -33,11 +33,10 @@ class ZkSpider(scrapy.Spider):
     def parse(self, response):
         if response.status in [404]:
             return
-        title_selector = response.css(
-            "#container .title_box h1::text").extract_first()
+        title_selector = response.css("#container .title_box h1::text").extract_first()
         if not title_selector:
             return
-        title = title_selector.rstrip().strip()
+        title = self.text_encode(title_selector.rstrip().strip())
         if not title:
             return
         for r in lastfm.get_artist(title):
@@ -77,9 +76,10 @@ class ZkSpider(scrapy.Spider):
     @staticmethod
     def text_encode(text):
         try:
-            return text.encode('ascii').decode('unicode_escape').encode('utf-8')
+            return text.encode('utf-8')
+            # return text.encode('ascii').decode('unicode_escape').encode('utf-8')
         except (UnicodeEncodeError, UnicodeDecodeError):
-            return False
+            return None
 
     @staticmethod
     def get_url(url):

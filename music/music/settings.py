@@ -95,9 +95,3 @@ RETRY_TIMES = 5
 ROBOTSTXT_OBEY=False
 
 ITEM_PIPELINES = {'music.pipelines.MusicPipeline': 800}
-
-MONGODB_SERVER = "localhost"
-MONGODB_PORT = 27017
-MONGODB_DB = "musicdb"
-MONGODB_COLLECTION_ARTICT = "artict"
-MONGODB_COLLECTION_ITEM = "music"
