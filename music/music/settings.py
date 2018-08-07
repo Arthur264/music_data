@@ -8,6 +8,10 @@
 #     https://doc.scrapy.org/en/latest/topics/settings.html
 #     https://doc.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://doc.scrapy.org/en/latest/topics/spider-middleware.html
+import sys
+
+reload(sys)
+sys.setdefaultencoding('utf8')
 
 BOT_NAME = 'music'
 
@@ -90,7 +94,7 @@ HTTPCACHE_IGNORE_HTTP_CODES = []
 HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 # LOG_ENABLED = False
 # CONCURRENT_REQUESTS = 30
-LOG_LEVEL = 'INFO'
+LOG_LEVEL = 'DEBUG'
 RETRY_TIMES = 5
 ROBOTSTXT_OBEY=False
 

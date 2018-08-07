@@ -15,6 +15,7 @@ class LastFm(object):
         'api_key': API_KEY,
         'format': 'json'
     }
+    retry_num = 4
 
     def __init__(self):
         pass
@@ -71,8 +72,9 @@ class LastFm(object):
                 for tag in tags:
                     artict_info['tag'].append({'name': tag['name']})
 
-        for r in musicApi.make_request(artict_info, 'artist'):
-            yield r
+        yield ArtistItem(artict_info)
+        # for r in musicApi.make_request(artict_info, 'artist'):
+        #     yield r
 
     def _make_song(self, response):
         song = response.meta.get('item')
@@ -90,16 +92,37 @@ class LastFm(object):
                 'listeners_fm': self.get_field(track, ['listeners']),
                 'playcount_fm': self.get_field(track, ['playcount']),
             })
-
-        for r in musicApi.make_request(track_info, 'song'):
-            yield r
+        yield MusicItem(track_info)
+        # for r in musicApi.make_request(track_info, 'song'):
+        #     yield r
 
     def get_url(self, params):
         params.update(self.default_params)
         return self.api_url + '?' + urlencode(params)
 
-    def error_request(self, ex, response):
-        pass
+    def error_request(self, exception):
+        body = exception.value.response.body
+        meta = response.request.meta
+        iteration = meta.get('iteration', 0) + 1
+        if iteration < self.retry_num:
+            request = scrapy.Request(
+                url=req_url,
+                callback=response.request.callback,
+                errback=response.request.errback,
+                dont_filter=response.request.dont_filter,
+                meta={k: v for k, v in meta.items()}
+            )
+            request.meta['iteration'] = iteration
+            yield request
+        else:
+            if meta.get('item'):
+                song = response.meta.get('item')
+                MusicItem(song)
+            else:
+                ArtistItem(name=meta.get('artist'))
+
+
+
 
 
 lastfm = LastFm()

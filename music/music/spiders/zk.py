@@ -18,14 +18,12 @@ HEADERS = {
 class ZkSpider(scrapy.Spider):
     name = 'music'
     allowed_domains = ['zk.fm', 'ws.audioscrobbler.com', 'music-artyr264.c9users.io']
-    handle_httpstatus_list = [304]
+    handle_httpstatus_list = [304, 404]
 
     def start_requests(self):
-        for n in range(1, 10000):
-            print("Count:", n)
+        for n in range(1, 10):
             yield scrapy.Request(url=BASE_URL + '/artist/' + str(n),
-                                 meta={
-                                     'atrict': n, 'handle_httpstatus_all': True, "dont_merge_cookie": True},
+                                 meta={'atrict': n, 'handle_httpstatus_all': True, "dont_merge_cookie": True},
                                  errback=self.error,
                                  headers=HEADERS,
                                  callback=self.parse)
@@ -42,9 +40,9 @@ class ZkSpider(scrapy.Spider):
         for r in lastfm.get_artist(title):
             yield r
 
-        # response.meta['artist_name'] = title
-        # for r in self.get_items(response):
-        #     yield r
+        response.meta['artist_name'] = title
+        for r in self.get_items(response):
+            yield r
 
     def get_items(self, response):
         atrict = response.meta['atrict']
@@ -76,7 +74,7 @@ class ZkSpider(scrapy.Spider):
     @staticmethod
     def text_encode(text):
         try:
-            return text.encode('utf-8')
+            return unicode(text.encode('utf-8'))
             # return text.encode('ascii').decode('unicode_escape').encode('utf-8')
         except (UnicodeEncodeError, UnicodeDecodeError):
             return None
@@ -99,5 +97,6 @@ class ZkSpider(scrapy.Spider):
         return result
 
     def error(e, response):
+        import pdb; pdb.set_trace()
         print("Error:", e, response)
         return True
