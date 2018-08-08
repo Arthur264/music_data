@@ -102,27 +102,24 @@ class LastFm(object):
 
     def error_request(self, exception):
         body = exception.value.response.body
-        meta = response.request.meta
+        meta = exception.request.meta
         iteration = meta.get('iteration', 0) + 1
         if iteration < self.retry_num:
+            req_url = meta.get("redirect_urls", [exception.request.url])[0]
             request = scrapy.Request(
                 url=req_url,
-                callback=response.request.callback,
-                errback=response.request.errback,
-                dont_filter=response.request.dont_filter,
+                callback=exception.request.callback,
+                errback=exception.request.errback,
+                dont_filter=exception.request.dont_filter,
                 meta={k: v for k, v in meta.items()}
             )
             request.meta['iteration'] = iteration
             yield request
         else:
             if meta.get('item'):
-                song = response.meta.get('item')
+                song = meta.get('item')
                 MusicItem(song)
             else:
                 ArtistItem(name=meta.get('artist'))
-
-
-
-
 
 lastfm = LastFm()

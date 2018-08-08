@@ -21,7 +21,7 @@ class ZkSpider(scrapy.Spider):
     handle_httpstatus_list = [304, 404]
 
     def start_requests(self):
-        for n in range(1, 10):
+        for n in range(1, 100):
             yield scrapy.Request(url=BASE_URL + '/artist/' + str(n),
                                  meta={'atrict': n, 'handle_httpstatus_all': True, "dont_merge_cookie": True},
                                  errback=self.error,
