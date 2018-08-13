@@ -21,27 +21,17 @@ class ZkSpider(scrapy.Spider):
     allowed_domains = ['zk.fm', 'ws.audioscrobbler.com', 'music-artyr264.c9users.io']
     handle_httpstatus_list = [304, 404]
 
+    def __init__(self, start=None):
+        super().__init__()
+        self.start = start
+
     def start_requests(self):
-        # p = pp.ProcessPool(4)
-        # results = p.map(self.run, range(0, 1000))
-        # print(results)
-        # p.terminate()
-        # p.join()
-        # yield [r.get() for r in results]
-        for n in range(500, 800):
+        for n in range(self.start, self.start + 200):
             yield scrapy.Request(url=BASE_URL + '/artist/' + str(n),
                                  meta={'atrict': n, 'handle_httpstatus_all': True, "dont_merge_cookie": True},
                                  errback=self.error,
                                  headers=HEADERS,
                                  callback=self.parse)
-
-    # def run(self, n):
-    #     print(n)
-    #     yield scrapy.Request(url=BASE_URL + '/artist/' + str(n),
-    #                          meta={'atrict': n, 'handle_httpstatus_all': True, "dont_merge_cookie": True},
-    #                          errback=self.error,
-    #                          headers=HEADERS,
-    #                          callback=self.parse)
 
     def parse(self, response):
         if response.status in [404]:
@@ -111,7 +101,14 @@ class ZkSpider(scrapy.Spider):
                 result.append(item[0])
         return result
 
-    def error(e, response):
-        import pdb; pdb.set_trace()
-        print("Error:", e, response)
+    @staticmethod
+    def error(response):
+        print("Error:", response)
         return True
+
+
+if __name__ == "__main__":
+    process = CrawlerProcess()
+
+    process.crawl(ZkSpider, start=800)
+    process.start()

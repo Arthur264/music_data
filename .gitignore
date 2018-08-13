@@ -1,6 +1,7 @@
 data/
 music/data_result/
 music/music_data/
+music/data/
 music/.scrapy/
 *.pyc
 .c9/
