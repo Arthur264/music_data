@@ -92,7 +92,7 @@ class ZkSpider(scrapy.Spider):
 
     def get_proxy(self):
         proxy = random.choice(self.get_proxy_factory())
-        return "https://ebates:w2zQbyMp@%s:60099" % proxy
+        return "" % proxy
 
     @staticmethod
     def get_proxy_factory():

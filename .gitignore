@@ -3,3 +3,5 @@ music/data_result/
 music/music_data/
 music/.scrapy/
 *.pyc
+.c9/
+music/music/proxylist.csv
