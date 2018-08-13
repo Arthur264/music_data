@@ -4,7 +4,7 @@ import csv
 import random
 from urlparse import urljoin
 from urllib import urlencode
-from multiprocessing import Pool
+import pathos.pools as pp
 from music.last_api import lastfm
 
 BASE_URL = 'http://zk.fm'
@@ -22,18 +22,26 @@ class ZkSpider(scrapy.Spider):
     handle_httpstatus_list = [304, 404]
 
     def start_requests(self):
-        p = Pool(4)
-        p.map(self.run, range(1623, 2000))
-        p.terminate()
-        p.join()
+        # p = pp.ProcessPool(4)
+        # results = p.map(self.run, range(0, 1000))
+        # print(results)
+        # p.terminate()
+        # p.join()
+        # yield [r.get() for r in results]
+        for n in range(500, 800):
+            yield scrapy.Request(url=BASE_URL + '/artist/' + str(n),
+                                 meta={'atrict': n, 'handle_httpstatus_all': True, "dont_merge_cookie": True},
+                                 errback=self.error,
+                                 headers=HEADERS,
+                                 callback=self.parse)
 
-    def run(self, n):
-        print(n)
-        yield scrapy.Request(url=BASE_URL + '/artist/' + str(n),
-                             meta={'atrict': n, 'handle_httpstatus_all': True, "dont_merge_cookie": True},
-                             errback=self.error,
-                             headers=HEADERS,
-                             callback=self.parse)
+    # def run(self, n):
+    #     print(n)
+    #     yield scrapy.Request(url=BASE_URL + '/artist/' + str(n),
+    #                          meta={'atrict': n, 'handle_httpstatus_all': True, "dont_merge_cookie": True},
+    #                          errback=self.error,
+    #                          headers=HEADERS,
+    #                          callback=self.parse)
 
     def parse(self, response):
         if response.status in [404]:

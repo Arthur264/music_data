@@ -14,6 +14,7 @@ class MusicItem(scrapy.Item):
     url = scrapy.Field()
     time = scrapy.Field()
     artist = scrapy.Field()
+    duration = scrapy.Field(default='')
     image = scrapy.Field(default='')
     listeners_fm = scrapy.Field(default='')
     playcount_fm = scrapy.Field(default='')
