@@ -4,6 +4,7 @@ import csv
 import random
 from urlparse import urljoin
 from urllib import urlencode
+from multiprocessing import Pool
 from music.last_api import lastfm
 
 BASE_URL = 'http://zk.fm'
@@ -21,12 +22,18 @@ class ZkSpider(scrapy.Spider):
     handle_httpstatus_list = [304, 404]
 
     def start_requests(self):
-        for n in range(1, 100):
-            yield scrapy.Request(url=BASE_URL + '/artist/' + str(n),
-                                 meta={'atrict': n, 'handle_httpstatus_all': True, "dont_merge_cookie": True},
-                                 errback=self.error,
-                                 headers=HEADERS,
-                                 callback=self.parse)
+        p = Pool(4)
+        p.map(self.run, range(1623, 2000))
+        p.terminate()
+        p.join()
+
+    def run(self, n):
+        print(n)
+        yield scrapy.Request(url=BASE_URL + '/artist/' + str(n),
+                             meta={'atrict': n, 'handle_httpstatus_all': True, "dont_merge_cookie": True},
+                             errback=self.error,
+                             headers=HEADERS,
+                             callback=self.parse)
 
     def parse(self, response):
         if response.status in [404]:

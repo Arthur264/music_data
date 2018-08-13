@@ -117,8 +117,7 @@ class LastFm(object):
             yield request
         else:
             if meta.get('item'):
-                song = meta.get('item')
-                MusicItem(song)
+                MusicItem(meta['item'])
             else:
                 ArtistItem(name=meta.get('artist'))
 
