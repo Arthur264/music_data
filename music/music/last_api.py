@@ -55,6 +55,7 @@ class LastFm(object):
         if jsonresponse and not jsonresponse.get('error'):
             artist = jsonresponse['artist']
             artict_info.update({
+		'name': self.get_field(artist, ['name']),
                 'image': self.get_field(artist, ['image', -2, '#text']),
                 'listeners_fm': self.get_field(artist, ['stats', 'listeners']),
                 'playcount_fm': self.get_field(artist, ['stats', 'playcount']),
@@ -88,6 +89,8 @@ class LastFm(object):
         if jsonresponse and not jsonresponse.get('error'):
             track = jsonresponse['track']
             track_info.update({
+		'name': self.get_field(track, ['name']),
+		'artist': self.get_field(track, ['artist', 'name']),
                 'image': self.get_field(track, ['album', 'image', -1, '#text']),
                 'listeners_fm': self.get_field(track, ['listeners']),
                 'playcount_fm': self.get_field(track, ['playcount']),
