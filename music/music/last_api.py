@@ -1,8 +1,7 @@
 import json
 from urllib import urlencode
 from music_api import musicApi
-from urlparse import urlunparse, urlparse
-from music.items import MusicItem, ArtistItem
+from items import MusicItem, ArtistItem
 import scrapy
 
 API_KEY = '019606439d302ebbbff19dfeed1c342b'
@@ -20,7 +19,8 @@ class LastFm(object):
     def __init__(self):
         pass
 
-    def get_field(self, obj, fields):
+    @staticmethod
+    def get_field(obj, fields):
         if not obj or not fields:
             return None
 
@@ -28,14 +28,14 @@ class LastFm(object):
         for field in fields:
             try:
                 result = result[field]
-            except KeyError, IndexError:
+            except (KeyError, IndexError):
                 return None
         return result
 
     def get_artist(self, name):
         params = {'method': 'artist.getinfo', 'artist': name}
         yield scrapy.Request(self.get_url(params),
-                             callback=self._make_artict,
+                             callback=self._make_artist,
                              errback=self.error_request,
                              meta=params)
 
@@ -47,15 +47,15 @@ class LastFm(object):
                              errback=self.error_request,
                              meta=params)
 
-    def _make_artict(self, response):
-        artict_info = {
+    def _make_artist(self, response):
+        artist_info = {
             'name': response.meta.get('artist'),
         }
-        jsonresponse = json.loads(response.body_as_unicode())
-        if jsonresponse and not jsonresponse.get('error'):
-            artist = jsonresponse['artist']
-            artict_info.update({
-		        'name': self.get_field(artist, ['name']),
+        json_response = json.loads(response.body_as_unicode())
+        if json_response and not json_response.get('error'):
+            artist = json_response['artist']
+            artist_info.update({
+                'name': self.get_field(artist, ['name']),
                 'image': self.get_field(artist, ['image', -2, '#text']),
                 'listeners_fm': self.get_field(artist, ['stats', 'listeners']),
                 'playcount_fm': self.get_field(artist, ['stats', 'playcount']),
@@ -67,15 +67,15 @@ class LastFm(object):
             similars = self.get_field(artist, ['similar', 'artist'])
             if similars:
                 for similar in similars:
-                    artict_info['similar'].append({'name': similar['name']})
+                    artist_info['similar'].append({'name': similar['name']})
             tags = self.get_field(artist, ['tags', 'tag'])
             if tags:
                 for tag in tags:
-                    artict_info['tag'].append({'name': tag['name']})
+                    artist_info['tag'].append({'name': tag['name']})
 
-        yield ArtistItem(artict_info)
-        # for r in musicApi.make_request(artict_info, 'artist'):
-        #     yield r
+        yield ArtistItem(artist_info)
+        for r in musicApi.make_request(artist_info, 'artist'):
+            yield r
 
     def _make_song(self, response):
         song = response.meta.get('item')
@@ -85,27 +85,26 @@ class LastFm(object):
             'time': song['time'],
             'artist': song['artist'],
         }
-        jsonresponse = json.loads(response.body_as_unicode())
-        if jsonresponse and not jsonresponse.get('error'):
-            track = jsonresponse['track']
+        json_response = json.loads(response.body_as_unicode())
+        if json_response and not json_response.get('error'):
+            track = json_response['track']
             track_info.update({
-		        'name': self.get_field(track, ['name']),
-		        'artist': self.get_field(track, ['artist', 'name']),
+                'name': self.get_field(track, ['name']),
+                'artist': self.get_field(track, ['artist', 'name']),
                 'duration': self.get_field(track, ['duration']),
                 'image': self.get_field(track, ['album', 'image', -1, '#text']),
                 'listeners_fm': self.get_field(track, ['listeners']),
                 'playcount_fm': self.get_field(track, ['playcount']),
             })
         yield MusicItem(track_info)
-        # for r in musicApi.make_request(track_info, 'song'):
-        #     yield r
+        for r in musicApi.make_request(track_info, 'song'):
+            yield r
 
     def get_url(self, params):
         params.update(self.default_params)
         return self.api_url + '?' + urlencode(params)
 
     def error_request(self, exception):
-        body = exception.value.response.body
         meta = exception.request.meta
         iteration = meta.get('iteration', 0) + 1
         if iteration < self.retry_num:
@@ -121,8 +120,14 @@ class LastFm(object):
             yield request
         else:
             if meta.get('item'):
-                MusicItem(meta['item'])
+                yield MusicItem(meta['item'])
+                for r in musicApi.make_request(meta.get('item'), 'song'):
+                    yield r
             else:
-                ArtistItem(name=meta.get('artist'))
+                artist_info = {"name": meta.get('artist')}
+                yield ArtistItem(artist_info)
+                for r in musicApi.make_request(artist_info, 'artist'):
+                    yield r
+
 
 lastfm = LastFm()

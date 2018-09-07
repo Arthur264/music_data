@@ -1,8 +1,10 @@
 data/
 music/data_result/
 music/music_data/
+music/music/music_data/
 music/data/
 music/.scrapy/
 *.pyc
 .c9/
+.idea/
 music/music/proxylist.csv

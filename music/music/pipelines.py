@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-#! /usr/bin/python3
 import os
 import io
 import time
@@ -8,10 +7,10 @@ from scrapy.exporters import CsvItemExporter, JsonItemExporter
 
 
 class MusicPipeline(object):
-    current_time = time.strftime("%Y_%m_%d_%H_%M_%S")
     folder_path = 'music_data/{}'
 
     def __init__(self):
+        self.current_time = time.strftime("%Y_%m_%d_%H_%M_%S")
         self.create_folder(self.folder_path.format(self.current_time))
         self.count_artist = 0
         self.file_item = io.open("music_data/{}/music.json".format(self.current_time), "wb")

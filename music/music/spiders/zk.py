@@ -1,18 +1,16 @@
 import scrapy
-import json
 import csv
 import random
 from urlparse import urljoin
-from urllib import urlencode
-import pathos.pools as pp
-from music.last_api import lastfm
+from last_api import lastfm
 
 BASE_URL = 'http://zk.fm'
+USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.87 Safari/537.3'
 HEADERS = {
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
     'Accept-Encoding': 'gzip, deflate',
     'Accept-Language': 'en-US,en;q=0.9,uk;q=0.8',
-    'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.87 Safari/537.3'
+    'User-Agent': USER_AGENT
 }
 
 
@@ -21,26 +19,28 @@ class ZkSpider(scrapy.Spider):
     allowed_domains = ['zk.fm', 'ws.audioscrobbler.com', 'music-artyr264.c9users.io']
     handle_httpstatus_list = [304, 404]
 
-    def __init__(self, start=None):
-        super().__init__()
+    def __init__(self, start=None, *a, **kw):
+        super(ZkSpider, self).__init__(*a, **kw)
         self.start = start
 
     def start_requests(self):
-        for n in range(self.start, self.start + 200):
+        for n in range(self.start, self.start + 20):
             yield scrapy.Request(url=BASE_URL + '/artist/' + str(n),
-                                 meta={'atrict': n, 'handle_httpstatus_all': True, "dont_merge_cookie": True},
+                                 meta={'artist': n, 'handle_httpstatus_all': True, "dont_merge_cookie": True},
                                  errback=self.error,
                                  headers=HEADERS,
                                  callback=self.parse)
 
     def parse(self, response):
         if response.status in [404]:
+            print('Error: 404')
             return
         title_selector = response.css("#container .title_box h1::text").extract_first()
         if not title_selector:
             return
         title = self.text_encode(title_selector.rstrip().strip())
         if not title:
+            print('Error: encode')
             return
         for r in lastfm.get_artist(title):
             yield r
@@ -50,7 +50,7 @@ class ZkSpider(scrapy.Spider):
             yield r
 
     def get_items(self, response):
-        atrict = response.meta['atrict']
+        artist = response.meta['artist']
         artist_name = response.meta['artist_name']
         for item in response.css("#container .song"):
             try:
@@ -72,7 +72,7 @@ class ZkSpider(scrapy.Spider):
             url = self.get_url(next_page.xpath("@href").extract_first())
             yield scrapy.Request(url,
                                  meta={
-                                     "atrict": atrict, "dont_merge_cookie": True, 'artist_name': artist_name},
+                                     "artist": artist, "dont_merge_cookie": True, 'artist_name': artist_name},
                                  headers=HEADERS,
                                  callback=self.get_items)
 
@@ -80,13 +80,12 @@ class ZkSpider(scrapy.Spider):
     def text_encode(text):
         try:
             return unicode(text.encode('utf-8'))
-            # return text.encode('ascii').decode('unicode_escape').encode('utf-8')
         except (UnicodeEncodeError, UnicodeDecodeError):
             return None
 
     @staticmethod
     def get_url(url):
-        return urljoin(BASE_URL, url) if BASE_URL not in url else url
+        return urljoin(BASE_URL, url)
 
     def get_proxy(self):
         proxy = random.choice(self.get_proxy_factory())
@@ -105,10 +104,3 @@ class ZkSpider(scrapy.Spider):
     def error(response):
         print("Error:", response)
         return True
-
-
-if __name__ == "__main__":
-    process = CrawlerProcess()
-
-    process.crawl(ZkSpider, start=800)
-    process.start()
