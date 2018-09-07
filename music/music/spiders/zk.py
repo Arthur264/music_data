@@ -24,7 +24,7 @@ class ZkSpider(scrapy.Spider):
         self.start = start
 
     def start_requests(self):
-        for n in range(self.start, self.start + 20):
+        for n in range(self.start, self.start + 50000):
             yield scrapy.Request(url=BASE_URL + '/artist/' + str(n),
                                  meta={'artist': n, 'handle_httpstatus_all': True, "dont_merge_cookie": True},
                                  errback=self.error,
@@ -52,6 +52,8 @@ class ZkSpider(scrapy.Spider):
     def get_items(self, response):
         artist = response.meta['artist']
         artist_name = response.meta['artist_name']
+        items = []
+        items_urls = []
         for item in response.css("#container .song"):
             try:
                 song_info = {
@@ -62,17 +64,20 @@ class ZkSpider(scrapy.Spider):
                 }
                 if not song_info['name']:
                     continue
-            except AttributeError as e:
+                if song_info['url'] not in items_urls:
+                    items_urls.append(song_info['url'])
+                    items.append(song_info)
+            except AttributeError:
                 continue
 
-            for r in lastfm.get_song(artist_name, song_info):
+        for song_dict in items:
+            for r in lastfm.get_song(artist_name, song_dict):
                 yield r
         next_page = response.css("a.next-btn")
         if next_page and 'disabled' not in next_page.xpath("@class").extract_first():
             url = self.get_url(next_page.xpath("@href").extract_first())
             yield scrapy.Request(url,
-                                 meta={
-                                     "artist": artist, "dont_merge_cookie": True, 'artist_name': artist_name},
+                                 meta={"artist": artist, "dont_merge_cookie": True, 'artist_name': artist_name},
                                  headers=HEADERS,
                                  callback=self.get_items)
 
