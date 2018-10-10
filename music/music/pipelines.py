@@ -3,7 +3,7 @@ import os
 import io
 import time
 import logging
-from scrapy.exporters import CsvItemExporter, JsonItemExporter
+from scrapy.exporters import CsvItemExporter
 
 
 class MusicPipeline(object):
@@ -13,11 +13,11 @@ class MusicPipeline(object):
         self.current_time = time.strftime("%Y_%m_%d_%H_%M_%S")
         self.create_folder(self.folder_path.format(self.current_time))
         self.count_artist = 0
-        self.file_item = io.open("music_data/{}/music.json".format(self.current_time), "wb")
-        self.item = JsonItemExporter(self.file_item, encoding="utf-8", ensure_ascii=False)
+        self.file_item = io.open("music_data/{}/music.csv".format(self.current_time), "wb")
+        self.item = CsvItemExporter(self.file_item, encoding="utf-8")
         self.item.start_exporting()
-        self.file_artist = io.open("music_data/{}/artist.json".format(self.current_time), "wb")
-        self.artist = JsonItemExporter(self.file_artist, encoding="utf-8", ensure_ascii=False)
+        self.file_artist = io.open("music_data/{}/artist.csv".format(self.current_time), "wb")
+        self.artist = CsvItemExporter(self.file_artist, encoding="utf-8")
         self.artist.start_exporting()
 
     def close_spider(self, spider):

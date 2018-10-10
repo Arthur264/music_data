@@ -1,5 +1,5 @@
 import json
-from urllib import urlencode
+from urllib.parse import urlencode
 from music_api import musicApi
 from items import MusicItem, ArtistItem
 import scrapy
@@ -15,9 +15,6 @@ class LastFm(object):
         'format': 'json'
     }
     retry_num = 4
-
-    def __init__(self):
-        pass
 
     @staticmethod
     def get_field(obj, fields):
@@ -73,7 +70,6 @@ class LastFm(object):
                 for tag in tags:
                     artist_info['tag'].append({'name': tag['name']})
 
-        yield ArtistItem(artist_info)
         for r in musicApi.make_request(artist_info, 'artist'):
             yield r
 
@@ -96,7 +92,7 @@ class LastFm(object):
                 'listeners_fm': self.get_field(track, ['listeners']),
                 'playcount_fm': self.get_field(track, ['playcount']),
             })
-        yield MusicItem(track_info)
+
         for r in musicApi.make_request(track_info, 'song'):
             yield r
 
