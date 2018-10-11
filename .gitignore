@@ -8,3 +8,4 @@ music/.scrapy/
 .c9/
 .idea/
 music/music/proxylist.csv
+venv/
