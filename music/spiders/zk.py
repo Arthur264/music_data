@@ -14,12 +14,8 @@ HEADERS = {
 
 class ZkSpider(scrapy.Spider):
     name = 'music'
-    allowed_domains = ['zk.fm', 'ws.audioscrobbler.com', 'music-artyr264.c9users.io']
+    allowed_domains = ['zk.fm']
     handle_httpstatus_list = [304, 404]
-
-    def __init__(self, start=None, *args, **kwargs):
-        super(ZkSpider, self).__init__(*args, **kwargs)
-        self.start = start
 
     def start_requests(self):
         for n in range(1, 4):
