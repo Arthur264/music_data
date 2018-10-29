@@ -6,7 +6,8 @@ from urllib.parse import urljoin
 import psutil
 import scrapy
 
-from items import MusicItem, ArtistItem
+from database.connect import db
+from music.items import MusicItem, ArtistItem
 
 BASE_URL = 'https://zk.fm'
 USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36'
@@ -24,7 +25,6 @@ class ZkSpider(scrapy.Spider):
     handle_httpstatus_list = [304, 404]
 
     def start_requests(self):
-        with open('stat.txt', 'w'): pass
         for n in range(1, 1000):
             self.gc_clear()
             yield scrapy.Request(
@@ -39,7 +39,7 @@ class ZkSpider(scrapy.Spider):
             logging.error('Error: 404')
             return
 
-        title_selector = response.css("#container .title_box h1::text").extract_first()
+        title_selector = response.css('#container .title_box h1::text').extract_first()
         if not title_selector:
             return
 
@@ -57,12 +57,12 @@ class ZkSpider(scrapy.Spider):
     def get_items(self, response):
         artist_name = response.meta['artist_name']
         items, items_urls = [], []
-        for item in response.css("#container .song"):
+        for item in response.css('#container .song'):
             try:
                 song_info = {
-                    'name': item.css("div.song-name a span::text").extract_first().strip(),
-                    'time': item.css("span.song-time::text").extract_first().strip(),
-                    'url': self.get_url(item.css("span.song-download").xpath('@data-url').extract_first()),
+                    'name': item.css('div.song-name a span::text').extract_first().strip(),
+                    'time': item.css('span.song-time::text').extract_first().strip(),
+                    'url': self.get_url(item.css('span.song-download').xpath('@data-url').extract_first()),
                     'artist': artist_name
                 }
                 if not song_info['name']:
@@ -77,15 +77,15 @@ class ZkSpider(scrapy.Spider):
 
         for song_dict in items:
             yield MusicItem(song_dict)
-        self.memory_usage_psutil()
+        self.memory_usage()
 
-        next_page = response.css("a.next-btn")
-        if next_page and 'disabled' not in next_page.xpath("@class").extract_first():
-            url = self.get_url(next_page.xpath("@href").extract_first())
+        next_page = response.css('a.next-btn')
+        if next_page and 'disabled' not in next_page.xpath('@class').extract_first():
+            url = self.get_url(next_page.xpath('@href').extract_first())
             yield scrapy.Request(
                 url,
                 meta={
-                    "dont_merge_cookie": True,
+                    'dont_merge_cookie': True,
                     'artist_name': artist_name,
                 },
                 headers=HEADERS,
@@ -98,14 +98,13 @@ class ZkSpider(scrapy.Spider):
 
     @staticmethod
     def error(response):
-        logging.error("Error:", response)
+        logging.error('Error:', response)
         return True
 
-    def memory_usage_psutil(self):
+    def memory_usage(self):
         process = psutil.Process(os.getpid())
         mem = process.memory_info()[0] / float(2 ** 20)
-        with open('stat.txt', 'a') as f:
-            f.write(str(mem) + '\n')
+        db.insert('memory', {'spider_name': self.name, 'memory': mem})
         return mem
 
     @staticmethod

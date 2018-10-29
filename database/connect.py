@@ -7,6 +7,9 @@ class Database(object):
         self.conn = MongoClient('localhost', 27017)
         self.cur = self.conn.database
 
+    def connection(self):
+        return self.conn
+
     def remove_table(self, table_name):
         collection = getattr(self.cur, table_name)
         collection.drop()
@@ -18,7 +21,14 @@ class Database(object):
         else:
             collection.insert_many(data)
 
-    def find(self, table_name, data):
+    def update(self, table_name, filter, data):
+        collection = getattr(self.cur, table_name)
+        if isinstance(data, dict):
+            collection.update_one(filter, data)
+        else:
+            collection.update_many(filter, data)
+
+    def find(self, table_name, data=None):
         collection = getattr(self.cur, table_name)
         if data:
             return collection.find(data)

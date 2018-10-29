@@ -1,6 +1,6 @@
-import settings
+from music import settings
 from scrapy.crawler import CrawlerProcess
-from spiders.zk import ZkSpider
+from music.spiders.zk import ZkSpider
 from scrapy.utils.project import get_project_settings
 
 
