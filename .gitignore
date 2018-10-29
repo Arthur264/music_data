@@ -1,6 +1,7 @@
 data/
 music/data_result/
 music/music_data/
+music/results/
 music/music/music_data/
 music/data/
 music/.scrapy/
@@ -8,4 +9,4 @@ music/.scrapy/
 .c9/
 .idea/
 music/music/proxylist.csv
-venv/
+vevn/

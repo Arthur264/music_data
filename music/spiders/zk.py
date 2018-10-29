@@ -1,9 +1,15 @@
-import scrapy
+import gc
 import logging
+import os
 from urllib.parse import urljoin
+
+import psutil
+import scrapy
+
 from items import MusicItem, ArtistItem
-BASE_URL = 'http://zk.fm'
-USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.87 Safari/537.3'
+
+BASE_URL = 'https://zk.fm'
+USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36'
 HEADERS = {
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
     'Accept-Encoding': 'gzip, deflate',
@@ -18,24 +24,30 @@ class ZkSpider(scrapy.Spider):
     handle_httpstatus_list = [304, 404]
 
     def start_requests(self):
-        for n in range(1, 4):
-            yield scrapy.Request(url=BASE_URL + '/artist/' + str(n),
-                                 meta={'artist': n, 'handle_httpstatus_all': True, "dont_merge_cookie": True},
-                                 errback=self.error,
-                                 headers=HEADERS,
-                                 callback=self.parse)
+        with open('stat.txt', 'w'): pass
+        for n in range(1, 1000):
+            self.gc_clear()
+            yield scrapy.Request(
+                url=self.get_url(f'/artist/{n}'),
+                errback=self.error,
+                headers=HEADERS,
+                callback=self.parse,
+            )
 
     def parse(self, response):
         if response.status in [404]:
             logging.error('Error: 404')
             return
+
         title_selector = response.css("#container .title_box h1::text").extract_first()
         if not title_selector:
             return
+
         title = title_selector.rstrip().strip()
         if not title:
             logging.error('Error: encode')
             return
+
         yield ArtistItem(name=title)
 
         response.meta['artist_name'] = title
@@ -65,14 +77,20 @@ class ZkSpider(scrapy.Spider):
 
         for song_dict in items:
             yield MusicItem(song_dict)
+        self.memory_usage_psutil()
 
         next_page = response.css("a.next-btn")
         if next_page and 'disabled' not in next_page.xpath("@class").extract_first():
             url = self.get_url(next_page.xpath("@href").extract_first())
-            yield scrapy.Request(url,
-                                 meta={"dont_merge_cookie": True, 'artist_name': artist_name},
-                                 headers=HEADERS,
-                                 callback=self.get_items)
+            yield scrapy.Request(
+                url,
+                meta={
+                    "dont_merge_cookie": True,
+                    'artist_name': artist_name,
+                },
+                headers=HEADERS,
+                callback=self.get_items,
+            )
 
     @staticmethod
     def get_url(url):
@@ -82,3 +100,14 @@ class ZkSpider(scrapy.Spider):
     def error(response):
         logging.error("Error:", response)
         return True
+
+    def memory_usage_psutil(self):
+        process = psutil.Process(os.getpid())
+        mem = process.memory_info()[0] / float(2 ** 20)
+        with open('stat.txt', 'a') as f:
+            f.write(str(mem) + '\n')
+        return mem
+
+    @staticmethod
+    def gc_clear():
+        gc.collect()

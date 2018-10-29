@@ -14,24 +14,24 @@ class MusicItem(scrapy.Item):
     url = scrapy.Field()
     time = scrapy.Field()
     artist = scrapy.Field()
-    duration = scrapy.Field(default='')
-    image = scrapy.Field(default='')
-    listeners_fm = scrapy.Field(default='')
-    playcount_fm = scrapy.Field(default='')
-    tags = scrapy.Field(default=[])
+    # duration = scrapy.Field(default='')
+    # image = scrapy.Field(default='')
+    # listeners_fm = scrapy.Field(default='')
+    # playcount_fm = scrapy.Field(default='')
+    # tags = scrapy.Field(default=[])
 
 
 class ArtistItem(scrapy.Item):
     # define the fields for your item here like:
     name = scrapy.Field()
-    image = scrapy.Field(default='')
-    listeners_fm = scrapy.Field(default='')
-    playcount_fm = scrapy.Field(default='')
-    similar = scrapy.Field(default=[])
-    tag = scrapy.Field(default=[])
-    published = scrapy.Field(default='')
-    summary = scrapy.Field(default='')
-    content = scrapy.Field(default='')
+    # image = scrapy.Field(default='')
+    # listeners_fm = scrapy.Field(default='')
+    # playcount_fm = scrapy.Field(default='')
+    # similar = scrapy.Field(default=[])
+    # tag = scrapy.Field(default=[])
+    # published = scrapy.Field(default='')
+    # summary = scrapy.Field(default='')
+    # content = scrapy.Field(default='')
 
 
 class TagsItem(scrapy.Item):
