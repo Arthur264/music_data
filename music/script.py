@@ -2,9 +2,10 @@ from music import settings
 from scrapy.crawler import CrawlerProcess
 from music.spiders.zk import ZkSpider
 from scrapy.utils.project import get_project_settings
-
+from database.connect import db
 
 if __name__ == "__main__":
+    db.delete_db()
     scrapy_settings = get_project_settings()
     for item in dir(settings):
         if item.startswith("__"):

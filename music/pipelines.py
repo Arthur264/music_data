@@ -8,6 +8,7 @@ from fs import filesize
 from scrapy.exporters import CsvItemExporter
 
 from database.connect import db
+from monitoring.monitor import Monitor
 
 
 class MusicPipeline(object):
@@ -25,6 +26,7 @@ class MusicPipeline(object):
         self.file_artist = io.open(self.file_artist_name, 'wb')
         self.artist = CsvItemExporter(self.file_artist, encoding='utf-8')
         self.artist.start_exporting()
+        self.monitor = Monitor()
         db.insert('file_size', [{'file_type': 'song', 'size': 0}, {'file_type': 'artist', 'size': 0}])
 
     def close_spider(self, spider):
@@ -37,20 +39,14 @@ class MusicPipeline(object):
     def process_item(self, item, spider):
         if item.__class__.__name__ == 'MusicItem':
             self.item.export_item(item)
-            db.update(
-                'file_size',
-                {'file_type': 'song'},
-                {'$set': {'file_type': 'song', 'size': self.get_file_size(self.file_music_name)}}
-            )
+            file_size = self.get_file_size(self.file_music_name)
+            self.monitor.update_size(spider.name, 'song', file_size)
         else:
             self.count_artist += 1
             logging.info('Artist added ' + str(self.count_artist))
             self.artist.export_item(item)
-            db.update(
-                'file_size',
-                {'file_type': 'artist'},
-                {'$set': {'file_type': 'artist', 'size': self.get_file_size(self.file_artist_name)}}
-            )
+            file_size = self.get_file_size(self.file_artist_name)
+            self.monitor.update_size(spider.name, 'artist', file_size)
         return item
 
     @staticmethod

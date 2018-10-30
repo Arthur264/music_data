@@ -3,12 +3,16 @@ from pymongo import MongoClient
 
 class Database(object):
 
-    def __init__(self):
+    def __init__(self, name):
+        self.db_name = name
         self.conn = MongoClient('localhost', 27017)
-        self.cur = self.conn.database
+        self.cur = getattr(self.conn, self.db_name)
 
     def connection(self):
         return self.conn
+
+    def cursor(self):
+        return self.cur
 
     def remove_table(self, table_name):
         collection = getattr(self.cur, table_name)
@@ -21,12 +25,12 @@ class Database(object):
         else:
             collection.insert_many(data)
 
-    def update(self, table_name, filter, data):
+    def update(self, table_name, filter_data, data):
         collection = getattr(self.cur, table_name)
         if isinstance(data, dict):
-            collection.update_one(filter, data)
+            collection.update_one(filter_data, data)
         else:
-            collection.update_many(filter, data)
+            collection.update_many(filter_data, data)
 
     def find(self, table_name, data=None):
         collection = getattr(self.cur, table_name)
@@ -35,8 +39,11 @@ class Database(object):
 
         return collection.find()
 
+    def delete_db(self):
+        self.conn.drop_database(self.db_name)
+
     def __del__(self):
-        self.cur.close()
+        self.conn.close()
 
 
-db = Database()
+db = Database('log_database')

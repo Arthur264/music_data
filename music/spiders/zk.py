@@ -6,7 +6,7 @@ from urllib.parse import urljoin
 import psutil
 import scrapy
 
-from database.connect import db
+from monitoring.monitor import Monitor
 from music.items import MusicItem, ArtistItem
 
 BASE_URL = 'https://zk.fm'
@@ -23,6 +23,10 @@ class ZkSpider(scrapy.Spider):
     name = 'music'
     allowed_domains = ['zk.fm']
     handle_httpstatus_list = [304, 404]
+
+    def __init__(self, *args, **kwargs):
+        self.monitor = Monitor()
+        super().__init__(*args, **kwargs)
 
     def start_requests(self):
         for n in range(1, 1000):
@@ -104,7 +108,7 @@ class ZkSpider(scrapy.Spider):
     def memory_usage(self):
         process = psutil.Process(os.getpid())
         mem = process.memory_info()[0] / float(2 ** 20)
-        db.insert('memory', {'spider_name': self.name, 'memory': mem})
+        self.monitor.update_memory(self.name, mem)
         return mem
 
     @staticmethod
