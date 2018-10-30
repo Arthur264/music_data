@@ -29,7 +29,7 @@ class ZkSpider(scrapy.Spider):
         super().__init__(*args, **kwargs)
 
     def start_requests(self):
-        for n in range(1, 1000):
+        for n in range(1, 40):
             self.gc_clear()
             yield scrapy.Request(
                 url=self.get_url(f'/artist/{n}'),
@@ -81,6 +81,7 @@ class ZkSpider(scrapy.Spider):
 
         for song_dict in items:
             yield MusicItem(song_dict)
+
         self.memory_usage()
 
         next_page = response.css('a.next-btn')

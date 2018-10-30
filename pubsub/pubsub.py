@@ -13,5 +13,7 @@ class PubSub(object):
         if not self.stack.empty():
             return self.stack.get()
 
+        return None
+
 
 pub_sub = PubSub()

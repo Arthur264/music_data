@@ -1,10 +1,15 @@
-from music import settings
-from scrapy.crawler import CrawlerProcess
-from music.spiders.zk import ZkSpider
-from scrapy.utils.project import get_project_settings
-from database.connect import db
+import threading
 
-if __name__ == "__main__":
+from scrapy.crawler import CrawlerProcess
+from scrapy.utils.project import get_project_settings
+
+from database.connect import db
+from music import settings
+from music.spiders.zk import ZkSpider
+from pubsub.pubsub import pub_sub
+
+
+def main():
     db.delete_db()
     scrapy_settings = get_project_settings()
     for item in dir(settings):
@@ -17,3 +22,9 @@ if __name__ == "__main__":
     process.crawl(ZkSpider)
     process.start()
 
+
+if __name__ == "__main__":
+    thread1 = threading.Thread(target=main, args=(pub_sub, ))
+    thread2 = threading.Thread(target=func2, args=(num, q))
+    thread1.start()
+    thread2.start()

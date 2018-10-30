@@ -1,0 +1,3 @@
+CONFIG = {
+    'SECRET_KEY': 'iTrFSi8TcsrF5jSDG0i1D-p5SbidnTLvBgCFRdZTy7VmHebrEorv3M8huVJS2KQlPunGumIIcohLb'
+}
