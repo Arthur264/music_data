@@ -4,7 +4,7 @@ from flask import Flask, render_template
 from flask_socketio import SocketIO
 
 from monitoring.config import CONFIG
-from pubsub.pubsub import pub_sub
+from storage.queue import redis_queue
 
 app = Flask(__name__)
 app.config.update(CONFIG)
@@ -18,8 +18,8 @@ def hello():
 
 def background_thread():
     while True:
-        task = pub_sub.get()
-        if task:
+        if not redis_queue.empty():
+            task = redis_queue.get()
             socket_io.emit(task['name'], task['data'])
         else:
             time.sleep(1)
