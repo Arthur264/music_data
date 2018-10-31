@@ -29,8 +29,9 @@ class ZkSpider(scrapy.Spider):
         super().__init__(*args, **kwargs)
 
     def start_requests(self):
-        for n in range(1, 40):
+        for n in range(1, 400000):
             self.gc_clear()
+
             yield scrapy.Request(
                 url=self.get_url(f'/artist/{n}'),
                 errback=self.error,

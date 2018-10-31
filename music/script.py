@@ -9,6 +9,7 @@ from music.spiders.zk import ZkSpider
 def main():
     db.delete_db()
     scrapy_settings = get_project_settings()
+
     for item in dir(settings):
         if item.startswith("__"):
             continue

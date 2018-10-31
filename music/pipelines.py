@@ -52,7 +52,7 @@ class MusicPipeline(object):
         self.music.finish_exporting()
         self.file_music.close()
         file_music_size = self.get_file_size(self.file_music_name)
-        self.monitor.update_size(spider.name, 'music', file_music_size, self.count_song)
+        self.monitor.update_size(spider.name, 'song', file_music_size, self.count_song)
 
         self.artist.finish_exporting()
         self.file_artist.close()
