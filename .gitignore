@@ -10,3 +10,5 @@ music/.scrapy/
 .idea/
 music/music/proxylist.csv
 vevn/
+.scrapy/
+results/

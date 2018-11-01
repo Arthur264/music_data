@@ -24,21 +24,22 @@ class MusicPipeline(object):
     file_artist_name = None
     file_artist = None
     artist = None
+    is_start_export = False
 
     def __init__(self):
-        self.start_export()
         self.monitor = Monitor()
 
-    def start_export(self):
-        self.current_time = time.strftime('%Y_%m_%d_%H_%M_%S')
-        self.create_folder()
+    def start_export(self, spider_name):
+        self.current_time = time.strftime('%m_%d_%H_%M')
+        folder_name = f'{spider_name}_{self.current_time}'
+        self.create_folder(folder_name)
 
-        self.file_music_name = os.path.join(self.folder_path, self.current_time, 'music.csv')
+        self.file_music_name = os.path.join(self.folder_path, folder_name, 'music.csv')
         self.file_music = io.open(self.file_music_name, 'wb')
         self.music = CsvItemExporter(self.file_music, encoding='utf-8')
         self.music.start_exporting()
 
-        self.file_artist_name = os.path.join(self.folder_path, self.current_time, 'artist.csv')
+        self.file_artist_name = os.path.join(self.folder_path, folder_name, 'artist.csv')
         self.file_artist = io.open(self.file_artist_name, 'wb')
         self.artist = CsvItemExporter(self.file_artist, encoding='utf-8')
         self.artist.start_exporting()
@@ -47,6 +48,7 @@ class MusicPipeline(object):
             {'file_type': 'song', 'size': 0, 'count': 0},
             {'file_type': 'artist', 'size': 0, 'count': 0}
         ])
+        self.is_start_export = True
 
     def close_spider(self, spider):
         self.music.finish_exporting()
@@ -60,6 +62,9 @@ class MusicPipeline(object):
         self.monitor.update_size(spider.name, 'artist', file_artist_size, self.count_artist)
 
     def process_item(self, item, spider):
+        if not self.is_start_export:
+            self.start_export(spider.name)
+
         if isinstance(item, MusicItem):
             self.music.export_item(item)
             self.count_song += 1
@@ -78,8 +83,8 @@ class MusicPipeline(object):
 
         return item
 
-    def create_folder(self):
-        path = os.path.join(self.folder_path, self.current_time)
+    def create_folder(self, folder_name):
+        path = os.path.join(self.folder_path, folder_name)
         try:
             os.makedirs(path)
             logging.info(f'Created folder {path}')

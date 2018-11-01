@@ -9,5 +9,5 @@ HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 LOG_LEVEL = 'INFO'
 RETRY_TIMES = 5
 ITEM_PIPELINES = {
-    'pipelines.MusicPipeline': 800
+    'music.pipelines.MusicPipeline': 800
 }

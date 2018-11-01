@@ -48,6 +48,7 @@ let app = {
 				},
 				scales: {
 					xAxes: [{
+						type: "time",
 						display: true,
 						scaleLabel: {
 							display: true,
@@ -56,6 +57,12 @@ let app = {
 					}],
 					yAxes: [{
 						display: true,
+						ticks: {
+                                beginAtZero: true,
+                                steps: 10,
+                                stepValue: 5,
+                                max: 100
+                        },
 						scaleLabel: {
 							display: true,
 							labelString: 'Memory'
