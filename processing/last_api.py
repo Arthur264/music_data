@@ -9,7 +9,6 @@ class LastFmApi(object):
         'api_key': api_key,
         'format': 'json'
     }
-    retry_num = 4
 
     @staticmethod
     def get_field(obj, fields):
@@ -22,14 +21,21 @@ class LastFmApi(object):
                 result = result[field]
             except (KeyError, IndexError):
                 return None
+
         return result
 
-    def get_artist(self, name):
-        params = {'method': 'artist.getinfo', 'artist': name}
+    def get_artist(self, body):
+        return {
+            'method': 'artist.getinfo',
+            'artist': body['name'],
+        }
 
-    def get_song(self, artist, song_info):
-        params = {'method': 'track.getInfo', 'artist': artist,
-                  'track': song_info['name'], 'item': song_info}
+    def get_song(self, body):
+        return {
+            'method': 'track.getInfo',
+            'artist': body['artist'],
+            'track': body['name'],
+        }
 
     def _make_artist(self, response):
         artist_info = {
