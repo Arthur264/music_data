@@ -1,7 +1,6 @@
-import csv
 import json
 
-import aiofiles as aiof
+import aiofiles
 from aiohttp import ClientSession
 
 from processing.last_api import LastFmApi
@@ -44,10 +43,10 @@ class Task(object):
         return await self.write_result_in_file(result)
 
     async def write_result_in_file(self, result):
-        async with aiof.open(f'processing_result/{self.task_type}.csv', 'w') as out_file:
-            w = csv.DictWriter(out_file, result.keys())
-            w.writeheader()
-            w.writerow(result)
+        async with aiofiles.open(f'processing_result/{self.task_type}.csv', 'a') as out_file:
+            data = ','.join(list(result.values()))
+            await out_file.write(data)
+            await out_file.flush()
 
     def prepare_result(self, data):
         if self.is_music_type:
