@@ -1,4 +1,3 @@
-import json
 from urllib.parse import urlencode
 
 
@@ -24,26 +23,27 @@ class LastFmApi(object):
 
         return result
 
-    def get_artist(self, body):
+    @staticmethod
+    def get_artist(body):
         return {
             'method': 'artist.getinfo',
             'artist': body['name'],
         }
 
-    def get_song(self, body):
+    @staticmethod
+    def get_song(body):
         return {
             'method': 'track.getInfo',
             'artist': body['artist'],
             'track': body['name'],
         }
 
-    def _make_artist(self, response):
+    def make_artist(self, body, data):
         artist_info = {
-            'name': response.meta.get('artist'),
+            'name': body['name'],
         }
-        json_response = json.loads(response.body_as_unicode())
-        if json_response and not json_response.get('error'):
-            artist = json_response['artist']
+        if data and not data.get('error'):
+            artist = data['artist']
             artist_info.update({
                 'name': self.get_field(artist, ['name']),
                 'image': self.get_field(artist, ['image', -2, '#text']),
@@ -63,17 +63,17 @@ class LastFmApi(object):
                 for tag in tags:
                     artist_info['tag'].append({'name': tag['name']})
 
-    def _make_song(self, response):
-        song = response.meta.get('item')
+        return artist_info
+
+    def make_song(self, body, data):
         track_info = {
-            'name': song['name'],
-            'url': song['url'],
-            'time': song['time'],
-            'artist': song['artist'],
+            'name': body['name'],
+            'url': body['url'],
+            'time': body['time'],
+            'artist': body['artist'],
         }
-        json_response = json.loads(response.body_as_unicode())
-        if json_response and not json_response.get('error'):
-            track = json_response['track']
+        if data and not data.get('error'):
+            track = data['track']
             track_info.update({
                 'name': self.get_field(track, ['name']),
                 'artist': self.get_field(track, ['artist', 'name']),
@@ -82,10 +82,8 @@ class LastFmApi(object):
                 'listeners_fm': self.get_field(track, ['listeners']),
                 'playcount_fm': self.get_field(track, ['playcount']),
             })
+        return track_info
 
     def get_url(self, params):
         params.update(self.default_params)
         return self.api_url + '?' + urlencode(params)
-
-
-

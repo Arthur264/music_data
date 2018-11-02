@@ -1,8 +1,8 @@
 import asyncio
+import logging
 import os
 
 import pandas as pd
-import numpy as np
 
 from processing.task import Task
 
@@ -24,6 +24,14 @@ def get_files(folder_name='results'):
     return music_files, artist_files
 
 
+def create_folders():
+    try:
+        os.makedirs('processing_result')
+        logging.info("Created folder: 'processing_result'")
+    except OSError:
+        return
+
+
 def get_task(files):
     for file_name in files:
         df = pd.read_csv(file_name)
@@ -34,11 +42,18 @@ def get_task(files):
             yield instance
 
 
-def run():
+async def main():
+    create_folders()
     music_files, artist_files = get_files()
     loop_tasks = [*get_task(music_files), *get_task(artist_files)]
+
+    semaphore = asyncio.Semaphore(100)
+    tasks = [asyncio.ensure_future(loop_task.run(semaphore)) for loop_task in loop_tasks]
+    await asyncio.gather(*tasks)
+
+
+def run():
     loop = asyncio.new_event_loop()
-    tasks = [loop.create_task(loop_task.run()) for loop_task in loop_tasks]
-    wait_tasks = asyncio.wait(tasks)
-    loop.run_until_complete(wait_tasks)
+    # loop.set_debug(True)
+    loop.run_until_complete(main())
     loop.close()

@@ -1,3 +1,7 @@
+import csv
+import json
+
+import aiofiles as aiof
 from aiohttp import ClientSession
 
 from processing.last_api import LastFmApi
@@ -15,17 +19,46 @@ class Task(object):
     def is_music_type(self):
         return self.task_type == 'music'
 
+    @property
+    def params(self):
+        if self.is_music_type:
+            return self.last_fm_api.get_song(self.body)
+
+        return self.last_fm_api.get_artist(self.body)
+
+    @property
+    def name(self):
+        return self.body['name']
+
+    @property
+    def url(self):
+        return self.last_fm_api.get_url(self.params)
+
     def __str__(self):
         return f'{self.task_type}_{self.name}'
 
-    async def run(self):
-        params = self.last_fm_api.get_song(self.body) if self.is_music_type else self.last_fm_api.get_artist(self.body)
-        await self._make_request(headers=params)
+    async def run(self, semaphore):
+        res = await self._make_request(semaphore)
+        res_json = json.loads(res)
+        result = self.prepare_result(res_json)
+        return await self.write_result_in_file(result)
 
-    def prepare_result(self):
-        pass
+    async def write_result_in_file(self, result):
+        async with aiof.open(f'processing_result/{self.task_type}.csv', 'w') as out_file:
+            w = csv.DictWriter(out_file, result.keys())
+            w.writeheader()
+            w.writerow(result)
 
-    async def _make_request(self, headers):
+    def prepare_result(self, data):
+        if self.is_music_type:
+            return self.last_fm_api.make_song(self.body, data)
+
+        return self.last_fm_api.make_artist(self.body, data)
+
+    async def fetch(self, semaphore, session):
+        async with semaphore, session.request(self.method, self.url) as response:
+            return await response.text(encoding='utf-8')
+
+    async def _make_request(self, semaphore):
         async with ClientSession() as session:
-            async with session.request(self.method, self.last_fm_api.api_url, headers=headers) as response:
-                return await response.text(encoding='utf-8')
+            return await self.fetch(semaphore, session)
