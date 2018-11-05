@@ -1,9 +1,12 @@
 import asyncio
 import logging
 import os
+import traceback
+import io
 
 import pandas as pd
 
+from config import PROCESSING_DIR
 from processing.task import Task
 
 
@@ -26,7 +29,8 @@ def get_files(folder_name='results'):
 
 def create_folders():
     try:
-        os.makedirs('processing_result')
+        os.rmdir(PROCESSING_DIR)
+        os.makedirs(PROCESSING_DIR)
         logging.info("Created folder: 'processing_result'")
     except OSError:
         return
@@ -53,7 +57,12 @@ async def main():
 
 
 def run():
-    loop = asyncio.new_event_loop()
-    # loop.set_debug(True)
-    loop.run_until_complete(main())
-    loop.close()
+    try:
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(main())
+        loop.close()
+    except Exception as e:
+        with io.open('log/log.txt', 'a') as log_file:
+            log_file.write(str(e))
+            log_file.write(traceback.format_exc())
+

@@ -43,10 +43,8 @@ class Task(object):
         return await self.write_result_in_file(result)
 
     async def write_result_in_file(self, result):
-        async with aiofiles.open(f'processing_result/{self.task_type}.csv', 'a') as out_file:
-            data = ','.join(list(result.values()))
-            await out_file.write(data)
-            await out_file.flush()
+        async with aiofiles.open(f'processing_result/{self.task_type}.json', mode='a') as out_file:
+            await out_file.write(json.dumps(result))
 
     def prepare_result(self, data):
         if self.is_music_type:
@@ -55,7 +53,7 @@ class Task(object):
         return self.last_fm_api.make_artist(self.body, data)
 
     async def fetch(self, semaphore, session):
-        async with semaphore, session.request(self.method, self.url) as response:
+        async with semaphore, session.request(self.method, self.url, timeout=60) as response:
             return await response.text(encoding='utf-8')
 
     async def _make_request(self, semaphore):
