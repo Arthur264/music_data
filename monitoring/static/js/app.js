@@ -5,6 +5,10 @@ let app = {
     	let self = this;
         let socket = io.connect('http://' + document.domain + ':' + location.port);
         socket.on('file_size', function (data) {
+            if (Array.isArray(data)){
+                app.file_size = data;
+                return false;
+            }
         	let present_in_arr = false;
         	for (var i = 0; i < self.file_size.length; i++) {
         		let item = self.file_size[i];
@@ -21,9 +25,33 @@ let app = {
         });
 
         socket.on('memory', function (data) {
+            if (Array.isArray(data)){
+                this.init_memory_line(data);
+                return false;
+            }
             app.memory.push(data)
             self.change_memory_line(data);
         });
+    },
+    init_memory_line: function(data){
+        let result = {};
+        for(let i=0; i< data.length; i++){
+            spider_name = data['spider_name']
+            if (spider_name in result){
+                result[spider_name].push(data['memory']);
+            }else{
+                result[spider_name] = [data['memory']]
+            }
+        }
+        this.memory = result;
+        this.memory.forEach(function(item) {
+        	if(dataset['label'] == item['spider_name']){
+        		app.config.data.labels.push(item['time']);
+        		dataset.data.push(item['memory']);
+        		item_in_dataset = true;
+        	}
+		});
+
     },
     chart: function(){
 		this.config = {
@@ -90,10 +118,6 @@ let app = {
 		});
     },
     change_memory_line: function(item) {
-        if(!app.config.data.datasets){
-        	app.config.data.datasets.push(this.generateDataset(item['spider_name']));
-			return false;
-        }
         let item_in_dataset = false;
         app.config.data.datasets.forEach(function(dataset) {
         	if(dataset['label'] == item['spider_name']){

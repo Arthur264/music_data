@@ -9,18 +9,18 @@ from processing.last_api import LastFmApi
 class Task(object):
     last_fm_api = LastFmApi()
 
-    def __init__(self, body, task_type='music', method='GET'):
+    def __init__(self, body, task_type='song', method='GET'):
         self.method = method
         self.task_type = task_type
         self.body = body
 
     @property
-    def is_music_type(self):
-        return self.task_type == 'music'
+    def is_song_type(self):
+        return self.task_type == 'song'
 
     @property
     def params(self):
-        if self.is_music_type:
+        if self.is_song_type:
             return self.last_fm_api.get_song(self.body)
 
         return self.last_fm_api.get_artist(self.body)
@@ -47,7 +47,7 @@ class Task(object):
             await out_file.write(json.dumps(result))
 
     def prepare_result(self, data):
-        if self.is_music_type:
+        if self.is_song_type:
             return self.last_fm_api.make_song(self.body, data)
 
         return self.last_fm_api.make_artist(self.body, data)

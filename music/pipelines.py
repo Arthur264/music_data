@@ -8,7 +8,7 @@ from fs import filesize
 from scrapy.exporters import CsvItemExporter
 
 from database.connect import db
-from monitoring.monitor import Monitor
+from monitoring.monitor import CrawlerMonitor
 from music.items import MusicItem
 
 
@@ -27,7 +27,7 @@ class MusicPipeline(object):
     is_start_export = False
 
     def __init__(self):
-        self.monitor = Monitor()
+        self.monitor = CrawlerMonitor()
 
     def start_export(self, spider_name):
         self.current_time = time.strftime('%m_%d_%H_%M')

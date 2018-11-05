@@ -3,6 +3,7 @@ import time
 from flask import Flask, render_template
 from flask_socketio import SocketIO
 
+from database.connect import db
 from monitoring.config import CONFIG
 from storage.queue import redis_queue
 
@@ -12,7 +13,7 @@ socket_io = SocketIO(app)
 
 
 @app.route('/monitoring')
-def hello():
+def monitoring():
     return render_template('monitoring.html')
 
 
@@ -25,8 +26,15 @@ def background_thread():
             time.sleep(1)
 
 
+def emit_all_collection():
+    cursor = db.cursor()
+    for collection in cursor.collection_names():
+        socket_io.emit(collection, list(cursor[collection].find({}, {'_id': False})))
+
+
 @socket_io.on('connect')
 def test_connect():
+    emit_all_collection()
     socket_io.start_background_task(target=background_thread)
 
 

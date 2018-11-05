@@ -1,8 +1,8 @@
 import asyncio
+import io
 import logging
 import os
 import traceback
-import io
 
 import pandas as pd
 
@@ -36,18 +36,23 @@ def create_folders():
         return
 
 
+def remove_logs():
+    with io.open('log/log.text', 'w'): pass
+
+
 def get_task(files):
     for file_name in files:
         df = pd.read_csv(file_name)
         for index, row in df.iterrows():
             row_dict = row.to_dict()
-            row_type = 'music' if row_dict.get('time') else 'artist'
+            row_type = 'song' if row_dict.get('time') else 'artist'
             instance = Task(body=row_dict, task_type=row_type)
             yield instance
 
 
 async def main():
     create_folders()
+    remove_logs()
     music_files, artist_files = get_files()
     loop_tasks = [*get_task(music_files), *get_task(artist_files)]
 
@@ -65,4 +70,3 @@ def run():
         with io.open('log/log.txt', 'a') as log_file:
             log_file.write(str(e))
             log_file.write(traceback.format_exc())
-
