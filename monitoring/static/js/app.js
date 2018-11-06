@@ -32,6 +32,9 @@ let app = {
             app.memory.push(data)
             self.change_memory_line(data);
         });
+        socket.on('process_item', function (data) {
+            console.log(data);
+        });
     },
     init_memory_line: function(data){
         let result = {};

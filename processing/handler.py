@@ -8,6 +8,7 @@ import pandas as pd
 
 from config import PROCESSING_DIR
 from processing.task import Task
+from monitoring.monitor import ProcessMonitor
 
 
 def get_files(folder_name='results'):
@@ -57,7 +58,8 @@ async def main():
     loop_tasks = [*get_task(music_files), *get_task(artist_files)]
 
     semaphore = asyncio.Semaphore(100)
-    tasks = [asyncio.ensure_future(loop_task.run(semaphore)) for loop_task in loop_tasks]
+    monitor = ProcessMonitor()
+    tasks = [asyncio.ensure_future(loop_task.run(semaphore, monitor)) for loop_task in loop_tasks]
     await asyncio.gather(*tasks)
 
 

@@ -51,9 +51,9 @@ class ProcessMonitor(BaseMonitor):
         return 'ProcessMonitor'
 
     def update_count(self, task_type):
-        self.storage[task_type] = self.storage.get(task_type, 0) + 1
+        count_tasks = self.storage.get(task_type, 0)
+        self.storage[task_type] = count_tasks + 1
 
-        count_tasks = self.storage.get(task_type)
         if count_tasks and count_tasks % 100 == 0:
             data = {'file_type': task_type, 'count': count_tasks}
             self._emit_event('process_item', data)

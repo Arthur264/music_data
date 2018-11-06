@@ -6,7 +6,7 @@ from urllib.parse import urljoin
 import psutil
 import scrapy
 
-from monitoring.monitor import Monitor
+from monitoring.monitor import CrawlerMonitor
 from music.items import MusicItem, ArtistItem
 
 BASE_URL = 'https://zk.fm'
@@ -25,7 +25,7 @@ class ZkSpider(scrapy.Spider):
     handle_httpstatus_list = [304, 404]
 
     def __init__(self, *args, **kwargs):
-        self.monitor = Monitor()
+        self.monitor = CrawlerMonitor()
         super().__init__(*args, **kwargs)
 
     def start_requests(self):

@@ -36,11 +36,15 @@ class Task(object):
     def __str__(self):
         return f'{self.task_type}_{self.name}'
 
-    async def run(self, semaphore):
+    async def run(self, semaphore, monitor):
         res = await self._make_request(semaphore)
         res_json = json.loads(res)
         result = self.prepare_result(res_json)
-        return await self.write_result_in_file(result)
+        await self.write_result_in_file(result)
+        self.complete()
+
+    def complete(self, monitor):
+        monitor.update_count(self.task_type)
 
     async def write_result_in_file(self, result):
         async with aiofiles.open(f'processing_result/{self.task_type}.json', mode='a') as out_file:
