@@ -2,13 +2,15 @@ import asyncio
 import io
 import logging
 import os
+import time
 import traceback
 
 import pandas as pd
 
+import config
 from config import PROCESSING_DIR
-from processing.task import Task
 from monitoring.monitor import ProcessMonitor
+from processing.task import Task
 
 
 def get_files(folder_name='results'):
@@ -25,12 +27,18 @@ def get_files(folder_name='results'):
                 artist_files.append(full_path)
             else:
                 continue
+
     return music_files, artist_files
 
 
 def create_folders():
     try:
         os.rmdir(PROCESSING_DIR)
+        logging.info("Removed folder: 'processing_result'")
+    except OSError:
+        pass
+
+    try:
         os.makedirs(PROCESSING_DIR)
         logging.info("Created folder: 'processing_result'")
     except OSError:
@@ -61,6 +69,14 @@ async def main():
     monitor = ProcessMonitor()
     tasks = [asyncio.ensure_future(loop_task.run(semaphore, monitor)) for loop_task in loop_tasks]
     await asyncio.gather(*tasks)
+    if config.DEBUG:
+        while True:
+            active_task = [task for task in asyncio.Task.all_tasks() if not task.done()]
+            logging.info(f'Active tasks count: {len(active_task)}')
+            if not active_task:
+                break
+
+            time.sleep(1)
 
 
 def run():

@@ -8,12 +8,12 @@ from database.connect import db
 from music import settings
 from music.spiders.zk import ZkSpider
 from processing import handler
+import config
 
 os.path.dirname(sys.modules['__main__'].__file__)
 
 
 def main():
-    db.delete_db()
     project_settings = get_project_settings()
 
     for item in dir(settings):
@@ -28,4 +28,7 @@ def main():
 
 
 if __name__ == "__main__":
+    if config.DEBUG:
+        db.delete_db()
+
     handler.run()

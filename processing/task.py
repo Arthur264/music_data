@@ -41,7 +41,7 @@ class Task(object):
         res_json = json.loads(res)
         result = self.prepare_result(res_json)
         await self.write_result_in_file(result)
-        self.complete()
+        self.complete(monitor)
 
     def complete(self, monitor):
         monitor.update_count(self.task_type)
