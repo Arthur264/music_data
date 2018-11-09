@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import io
 import logging
 import os
@@ -7,6 +6,7 @@ import time
 from fs import filesize
 from scrapy.exporters import CsvItemExporter
 
+import config
 from database.connect import db
 from monitoring.monitor import CrawlerMonitor
 from music.items import MusicItem
@@ -17,7 +17,6 @@ class MusicPipeline(object):
     current_time = None
     count_artist = 0
     count_song = 0
-    count_song_limit = 1000
     file_music_name = None
     file_music = None
     music = None
@@ -68,11 +67,9 @@ class MusicPipeline(object):
         if isinstance(item, MusicItem):
             self.music.export_item(item)
             self.count_song += 1
-            self.count_song_limit -= 1
-            if not self.count_song_limit:
+            if self.count_song % config.COUNT_EMIT_ITEMS == 0:
                 file_size = self.get_file_size(self.file_music_name)
                 self.monitor.update_size(spider.name, 'song', file_size, self.count_song)
-                self.count_song_limit = 1000
         else:
             self.count_artist += 1
             logging.info(f'Artist added {self.count_artist}')
