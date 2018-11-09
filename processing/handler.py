@@ -2,15 +2,18 @@ import asyncio
 import io
 import logging
 import os
+import threading
 import time
 import traceback
 
 import pandas as pd
+from tqdm import tqdm
 
 import config
-from config import PROCESSING_DIR
 from monitoring.monitor import ProcessMonitor
 from processing.task import Task
+
+tqdm.monitor_interval = 0
 
 
 def get_files(folder_name='results'):
@@ -33,20 +36,21 @@ def get_files(folder_name='results'):
 
 def create_folders():
     try:
-        os.rmdir(PROCESSING_DIR)
+        os.rmdir(config.PROCESSING_DIR)
         logging.info("Removed folder: 'processing_result'")
     except OSError:
         pass
 
     try:
-        os.makedirs(PROCESSING_DIR)
+        os.makedirs(config.PROCESSING_DIR)
         logging.info("Created folder: 'processing_result'")
     except OSError:
         return
 
 
 def remove_logs():
-    with io.open('log/log.text', 'w'): pass
+    with io.open('log/log.text', 'w'):
+        pass
 
 
 def get_task(files):
@@ -59,30 +63,42 @@ def get_task(files):
             yield instance
 
 
-async def main():
+def monitoring_task_count(loop):
+    if not config.DEBUG:
+        return
+
+    while True:
+        try:
+            active_task = len([1 for t in asyncio.Task.all_tasks(loop=loop) if not t.done()])
+            logging.info(f'Active tasks count: {active_task}')
+            if not active_task:
+                break
+        except RuntimeError:
+            pass
+
+        time.sleep(1)
+
+
+async def main(loop):
     create_folders()
     remove_logs()
     music_files, artist_files = get_files()
     loop_tasks = [*get_task(music_files), *get_task(artist_files)]
 
-    semaphore = asyncio.Semaphore(100)
+    thread = threading.Thread(target=monitoring_task_count, args=(loop,))
+    thread.setDaemon(True)
+    thread.start()
+
+    semaphore = asyncio.Semaphore(config.COUNT_TASK_EVENT_LOOP)
     monitor = ProcessMonitor()
     tasks = [asyncio.ensure_future(loop_task.run(semaphore, monitor)) for loop_task in loop_tasks]
     await asyncio.gather(*tasks)
-    if config.DEBUG:
-        while True:
-            active_task = [task for task in asyncio.Task.all_tasks() if not task.done()]
-            logging.info(f'Active tasks count: {len(active_task)}')
-            if not active_task:
-                break
-
-            time.sleep(1)
 
 
 def run():
     try:
         loop = asyncio.get_event_loop()
-        loop.run_until_complete(main())
+        loop.run_until_complete(main(loop))
         loop.close()
     except Exception as e:
         with io.open('log/log.txt', 'a') as log_file:

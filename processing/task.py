@@ -1,13 +1,19 @@
+import asyncio
 import json
 
 import aiofiles
-from aiohttp import ClientSession
+from aiohttp import (
+    ClientSession,
+    ClientError,
+)
 
 from processing.last_api import LastFmApi
 
 
 class Task(object):
     last_fm_api = LastFmApi()
+    _default_retries = 4
+    _default_timeout = 60
 
     def __init__(self, body, task_type='song', method='GET'):
         self.method = method
@@ -57,8 +63,12 @@ class Task(object):
         return self.last_fm_api.make_artist(self.body, data)
 
     async def fetch(self, semaphore, session):
-        async with semaphore, session.request(self.method, self.url, timeout=60) as response:
-            return await response.text(encoding='utf-8')
+        for _ in range(self._default_retries):
+            try:
+                async with semaphore, session.request(self.method, self.url, timeout=self._default_timeout) as response:
+                    return await response.text(encoding='utf-8')
+            except (asyncio.TimeoutError, ClientError):
+                pass
 
     async def _make_request(self, semaphore):
         async with ClientSession() as session:

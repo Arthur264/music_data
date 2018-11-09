@@ -1,3 +1,4 @@
+import logging
 import os
 import sys
 
@@ -11,6 +12,11 @@ from processing import handler
 import config
 
 os.path.dirname(sys.modules['__main__'].__file__)
+
+LOGGER_FORMAT = '%(asctime)s %(message)s'
+logging.basicConfig(format=LOGGER_FORMAT, datefmt='[%H:%M:%S]')
+log = logging.getLogger()
+log.setLevel(logging.INFO)
 
 
 def main():
@@ -29,6 +35,7 @@ def main():
 
 if __name__ == "__main__":
     if config.DEBUG:
+        log.setLevel(logging.DEBUG)
         db.delete_db()
 
     handler.run()
