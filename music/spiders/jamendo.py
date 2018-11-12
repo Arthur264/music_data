@@ -17,58 +17,37 @@ HEADERS = {
 
 class JamEnDoSpider(BaseSpider):
     name = 'jam_en_do'
-    handle_httpstatus_list = [304, 404]
-    start_urls = ['https://solr.jamendo.com/solr/jamcom?rows=1000&q=*&start=25']
+    song_url = 'https://storage.jamendo.com/download/track/{}/mp35/'
+    api_url = 'https://solr.jamendo.com/solr/jamcom?rows=1000&q=*&start={}'
+    start_urls = [api_url.format(0)]
 
     def parse(self, response):
+        start = response.meta.get('start', 0) + 1000
         unique_artist_names = set()
         json_data = json.loads(response.body.decode('utf-8'))['response']['docs']
+        self.memory_usage()
+        if not json_data:
+            return
+
         for data in json_data:
-            unique_artist_names.add(data['album_name'])
+            artist_name = data['artist_name']
+            unique_artist_names.add(artist_name)
             song_info = {
                 'name': data['name'],
-                'url': self.get_url(item.css('span.song-download').xpath('@data-url').extract_first()),
+                'url': self.song_url.format(data['id']),
                 'artist': artist_name
             }
+            yield MusicItem(song_info)
 
-        for artist_name in unique_artist_names:
-            yield ArtistItem(name=artist_name)
+        for name in unique_artist_names:
+            yield ArtistItem(name=name)
 
-    def get_items(self, response):
-        artist_name = response.meta['artist_name']
-        items, items_urls = [], []
-        for item in response.css('#container .song'):
-            try:
-                song_info = {
-                    'name': item.css('div.song-name a span::text').extract_first().strip(),
-                    'time': item.css('span.song-time::text').extract_first().strip(),
-                    'url': self.get_url(item.css('span.song-download').xpath('@data-url').extract_first()),
-                    'artist': artist_name
-                }
-                if not song_info['name']:
-                    continue
+        yield scrapy.Request(
+            self.api_url.format(start),
+            meta={
+                'start': start,
+            },
+            headers=HEADERS,
+            callback=self.parse,
+        )
 
-                if song_info['url'] not in items_urls:
-                    items_urls.append(song_info['url'])
-                    items.append(song_info)
-
-            except AttributeError:
-                continue
-
-        for song_dict in items:
-            yield MusicItem(song_dict)
-
-        self.memory_usage()
-
-        next_page = response.css('a.next-btn')
-        if next_page and 'disabled' not in next_page.xpath('@class').extract_first():
-            url = self.get_url(next_page.xpath('@href').extract_first())
-            yield scrapy.Request(
-                url,
-                meta={
-                    'dont_merge_cookie': True,
-                    'artist_name': artist_name,
-                },
-                headers=HEADERS,
-                callback=self.get_items,
-            )

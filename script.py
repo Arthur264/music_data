@@ -8,6 +8,7 @@ from scrapy.utils.project import get_project_settings
 from database.connect import db
 from music import settings
 from music.spiders.zk import ZkSpider
+from music.spiders.jamendo import JamEnDoSpider
 from processing import handler
 import config
 
@@ -29,6 +30,7 @@ def main():
         project_settings.setdict({item: getattr(settings, item)})
 
     process = CrawlerProcess(project_settings)
+    process.crawl(JamEnDoSpider)
     process.crawl(ZkSpider)
     process.start()
 
@@ -38,4 +40,5 @@ if __name__ == "__main__":
         log.setLevel(logging.DEBUG)
         db.delete_db()
 
-    handler.run()
+    # handler.run()
+    main()
