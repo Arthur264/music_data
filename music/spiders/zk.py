@@ -19,9 +19,10 @@ class ZkSpider(BaseSpider):
     allowed_domains = ['zk.fm']
     handle_httpstatus_list = [304, 404]
     base_url = 'https://zk.fm'
+    count_page = 400000
 
     def start_requests(self):
-        for n in range(1, 400000):
+        for n in range(1, self.count_page):
             self.gc_clear()
 
             yield scrapy.Request(
@@ -32,6 +33,7 @@ class ZkSpider(BaseSpider):
             )
 
     def parse(self, response):
+        self.memory_usage()
         if response.status in [404]:
             logging.error('Error: 404')
             return
@@ -48,8 +50,7 @@ class ZkSpider(BaseSpider):
         yield ArtistItem(name=title)
 
         response.meta['artist_name'] = title
-        for r in self.get_items(response):
-            yield r
+        yield from self.get_items(response)
 
     def get_items(self, response):
         artist_name = response.meta['artist_name']
@@ -73,8 +74,6 @@ class ZkSpider(BaseSpider):
 
         for song_dict in items:
             yield MusicItem(song_dict)
-
-        self.memory_usage()
 
         next_page = response.css('a.next-btn')
         if next_page and 'disabled' not in next_page.xpath('@class').extract_first():

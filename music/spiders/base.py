@@ -15,6 +15,7 @@ class BaseSpider(scrapy.Spider):
 
     def __init__(self, *args, **kwargs):
         self.monitor = CrawlerMonitor()
+        self.memory_usage()
         super().__init__(*args, **kwargs)
 
     @abstractmethod

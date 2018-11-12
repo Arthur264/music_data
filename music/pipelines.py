@@ -7,7 +7,6 @@ from fs import filesize
 from scrapy.exporters import CsvItemExporter
 
 import config
-from database.connect import db
 from monitoring.monitor import CrawlerMonitor
 from music.items import MusicItem
 
@@ -43,10 +42,6 @@ class MusicPipeline(object):
         self.artist = CsvItemExporter(self.file_artist, encoding='utf-8')
         self.artist.start_exporting()
 
-        db.insert('file_size', [
-            {'file_type': 'song', 'size': 0, 'count': 0},
-            {'file_type': 'artist', 'size': 0, 'count': 0}
-        ])
         self.is_start_export = True
 
     def close_spider(self, spider):
@@ -67,17 +62,16 @@ class MusicPipeline(object):
         if isinstance(item, MusicItem):
             self.music.export_item(item)
             self.count_song += 1
-            if self.count_song % config.COUNT_EMIT_ITEMS == 0:
+            if self.count_song % config.COUNT_EMIT_SONG_ITEMS == 0:
                 file_size = self.get_file_size(self.file_music_name)
                 self.monitor.update_size(spider.name, 'song', file_size, self.count_song)
         else:
             self.count_artist += 1
-            logging.info(f'Artist added {self.count_artist}')
+            if self.count_artist % config.COUNT_EMIT_ARTIST_ITEMS == 0:
+                file_size = self.get_file_size(self.file_artist_name)
+                self.monitor.update_size(spider.name, 'artist', file_size, self.count_artist)
+                logging.info(f'Artist added {self.count_artist}')
             self.artist.export_item(item)
-
-            file_size = self.get_file_size(self.file_artist_name)
-            self.monitor.update_size(spider.name, 'artist', file_size, self.count_artist)
-
         return item
 
     def create_folder(self, folder_name):

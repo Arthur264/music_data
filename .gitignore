@@ -6,3 +6,5 @@ vevn/
 results/
 log/
 processing_result/
+*.log
+log.txt

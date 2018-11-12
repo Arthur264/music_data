@@ -2,6 +2,7 @@ from time import gmtime, strftime
 
 from database.connect import db
 from storage.queue import redis_queue
+from config import COUNT_EMIT_FILE_SIZE
 
 
 class BaseMonitor(object):
@@ -54,7 +55,7 @@ class ProcessMonitor(BaseMonitor):
         count_tasks = self.storage.get(task_type, 0)
         self.storage[task_type] = count_tasks + 1
 
-        if count_tasks and count_tasks % 100 == 0:
+        if count_tasks and count_tasks % COUNT_EMIT_FILE_SIZE == 0:
             data = {'file_type': task_type, 'count': count_tasks}
             self._emit_event('process_item', data)
             db.update(

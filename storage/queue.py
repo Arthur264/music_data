@@ -10,6 +10,7 @@ class RedisQueue(object):
         self.__db = redis.Redis(**redis_kwargs)
         self.clean()
         self.key = f'{namespace}:{name}'
+        self.__db.expire(self.key, 20)
 
     def qsize(self):
         return self.__db.llen(self.key)

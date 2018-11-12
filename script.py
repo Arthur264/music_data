@@ -3,21 +3,28 @@ import os
 import sys
 
 from scrapy.crawler import CrawlerProcess
+from scrapy.utils.log import configure_logging
 from scrapy.utils.project import get_project_settings
 
+import config
 from database.connect import db
 from music import settings
-from music.spiders.zk import ZkSpider
 from music.spiders.jamendo import JamEnDoSpider
+from music.spiders.zk import ZkSpider
 from processing import handler
-import config
 
 os.path.dirname(sys.modules['__main__'].__file__)
 
 LOGGER_FORMAT = '%(asctime)s %(message)s'
-logging.basicConfig(format=LOGGER_FORMAT, datefmt='[%H:%M:%S]')
+logging.basicConfig(
+    filename='log.txt',
+    format=LOGGER_FORMAT,
+    level=logging.ERROR,
+    datefmt='[%H:%M:%S]',
+)
 log = logging.getLogger()
-log.setLevel(logging.INFO)
+log.setLevel(logging.ERROR)
+configure_logging(install_root_handler=False)
 
 
 def main():
@@ -33,6 +40,7 @@ def main():
     process.crawl(JamEnDoSpider)
     process.crawl(ZkSpider)
     process.start()
+    handler.run()
 
 
 if __name__ == "__main__":
@@ -40,5 +48,4 @@ if __name__ == "__main__":
         log.setLevel(logging.DEBUG)
         db.delete_db()
 
-    # handler.run()
     main()

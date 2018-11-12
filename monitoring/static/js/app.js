@@ -3,14 +3,10 @@ let app = {
     files_process: [],
     socket: function () {
         let self = this;
-        let socket = io.connect('http://' + document.domain + ':' + location.port);
+        let socket = io.connect(`http://${document.domain}:${location.port}`);
         socket.on('file_size', function (data) {
-            if (Array.isArray(data)) {
-                app.file_size = data;
-            } else {
-                app.file_size = app.update_items(self.file_size, data);
-            }
-            self.template_items(self.file_size, 'show_file_size');
+            app.file_size = Array.isArray(data) ? data: app.update_items(self.file_size, data);
+            self.template_items(self.file_size, 'show_file_size', 'Crawler file size');
         });
 
         socket.on('memory', function (data) {
@@ -21,12 +17,8 @@ let app = {
             self.change_memory_line(data);
         });
         socket.on('process_item', function (data) {
-            if (Array.isArray(data)) {
-                app.files_process = data;
-            } else {
-                app.files_process = app.update_items(self.files_process, data);
-            }
-            app.template_items(self.files_process, 'show_file_process');
+            app.files_process = Array.isArray(data) ? data: app.update_items(self.files_process, data);
+            app.template_items(self.files_process, 'show_file_process', 'Process items');
         });
     },
     update_items: function (items, data) {
@@ -48,17 +40,19 @@ let app = {
     init_memory_line: function (data) {
         let result = {};
         for (let i = 0; i < data.length; i++) {
+            let spider_name = data[i]['spider_name'];
+            let memory = data[i]['memory'];
             app.config.data.labels.push(data[i]['time']);
-            let spider_name = data['spider_name'];
             if (spider_name in result) {
-                result[spider_name].push(data['memory']);
+                result[spider_name].push(memory);
             } else {
-                result[spider_name] = [data['memory']]
+                result[spider_name] = [memory]
             }
         }
         for (let prop in result) {
             app.config.data.datasets.push(this.generateDataset(prop, result[prop]));
         }
+        console.log(window.memoryLine);
         window.memoryLine.update();
     },
     chart: function () {
@@ -66,7 +60,7 @@ let app = {
             type: 'line',
             data: {
                 labels: [],
-                datasets: []
+                datasets: [],
             },
             options: {
                 responsive: true,
@@ -84,7 +78,6 @@ let app = {
                 },
                 scales: {
                     xAxes: [{
-                        type: "time",
                         display: true,
                         scaleLabel: {
                             display: true,
@@ -93,12 +86,6 @@ let app = {
                     }],
                     yAxes: [{
                         display: true,
-                        ticks: {
-                            beginAtZero: true,
-                            steps: 10,
-                            stepValue: 5,
-                            max: 100
-                        },
                         scaleLabel: {
                             display: true,
                             labelString: 'Memory'
@@ -107,18 +94,16 @@ let app = {
                 }
             }
         };
-
-        window.onload = function () {
-            let ctx = document.getElementById('canvas').getContext('2d');
-            window.memoryLine = new Chart(ctx, app.config);
-        };
+        let ctx = document.getElementById('canvas').getContext('2d');
+        window.memoryLine = new Chart(ctx, app.config);
     },
-    template_items: function (items, template_name) {
+    template_items: function (items, template_name, title) {
         $(`#${template_name}`).html('');
         let templates = [];
-        let source = '<div class="col-xl-6 col-lg-6"><div class="card"><div class="card-body"><div class="stat-widget-one"><div class="stat-icon dib"><i class="ti-layout-grid2 text-warning border-warning"></i></div><div class="stat-content dib"><div class="stat-text">{{this.spider_name}} {{this.file_type}}</div><div class="stat-digit">{{size}}  {{count}}</div></div></div></div></div></div>';
+        let source = '<div class="col-xl-6 col-lg-6"><div class="card"><div class="card-body"><div class="text-center">{{this.title}}</div> <div class="stat-widget-one"><div class="stat-icon dib"><i class="ti-layout-grid2 text-warning border-warning"></i></div><div class="stat-content dib"><div class="stat-text">{{this.spider_name}} {{this.file_type}}</div><div class="stat-digit">{{size}}  {{count}}</div></div></div></div></div></div>';
         for (let i = items.length - 1; i >= 0; i--) {
             let template = Handlebars.compile(source);
+            items[i].title = title;
             templates.push(template(items[i]));
         }
         templates.forEach(function (item) {
@@ -154,8 +139,8 @@ let app = {
         return window.chartColors[keys[keys.length * Math.random() << 0]];
     },
     init: function () {
-        this.socket();
         this.chart();
+        this.socket();
     }
 
 };
