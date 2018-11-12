@@ -18,11 +18,12 @@ HEADERS = {
 class JamEnDoSpider(BaseSpider):
     name = 'jam_en_do'
     song_url = 'https://storage.jamendo.com/download/track/{}/mp35/'
+    count_rows = 1000
     api_url = 'https://solr.jamendo.com/solr/jamcom?rows=1000&q=*&start={}'
     start_urls = [api_url.format(0)]
 
     def parse(self, response):
-        start = response.meta.get('start', 0) + 1000
+        start = response.meta.get('start', 0) + self.count_rows
         unique_artist_names = set()
         json_data = json.loads(response.body.decode('utf-8'))['response']['docs']
         self.memory_usage()

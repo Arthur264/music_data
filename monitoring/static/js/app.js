@@ -5,7 +5,7 @@ let app = {
         let self = this;
         let socket = io.connect(`http://${document.domain}:${location.port}`);
         socket.on('file_size', function (data) {
-            app.file_size = Array.isArray(data) ? data: app.update_items(self.file_size, data);
+            app.file_size = Array.isArray(data) ? data : app.update_items(self.file_size, data);
             self.template_items(self.file_size, 'show_file_size', 'Crawler file size');
         });
 
@@ -17,7 +17,7 @@ let app = {
             self.change_memory_line(data);
         });
         socket.on('process_item', function (data) {
-            app.files_process = Array.isArray(data) ? data: app.update_items(self.files_process, data);
+            app.files_process = Array.isArray(data) ? data : app.update_items(self.files_process, data);
             app.template_items(self.files_process, 'show_file_process', 'Process items');
         });
     },
