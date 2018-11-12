@@ -16,15 +16,13 @@ from processing import handler
 os.path.dirname(sys.modules['__main__'].__file__)
 
 LOGGER_FORMAT = '%(asctime)s %(message)s'
+configure_logging(install_root_handler=True)
 logging.basicConfig(
     filename='log.txt',
     format=LOGGER_FORMAT,
     level=logging.ERROR,
     datefmt='[%H:%M:%S]',
 )
-log = logging.getLogger()
-log.setLevel(logging.ERROR)
-configure_logging(install_root_handler=False)
 
 
 def main():
@@ -45,7 +43,6 @@ def main():
 
 if __name__ == "__main__":
     if config.DEBUG:
-        log.setLevel(logging.DEBUG)
         db.delete_db()
 
     main()
