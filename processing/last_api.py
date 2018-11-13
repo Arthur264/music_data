@@ -69,7 +69,6 @@ class LastFmApi(object):
         track_info = {
             'name': body['name'],
             'url': body['url'],
-            'time': body['time'],
             'artist': body['artist'],
         }
         if data and not data.get('error'):

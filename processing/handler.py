@@ -58,7 +58,7 @@ def get_task(files):
         df = pd.read_csv(file_name)
         for index, row in df.iterrows():
             row_dict = row.to_dict()
-            row_type = 'song' if row_dict.get('time') else 'artist'
+            row_type = 'song' if row_dict.get('artist') else 'artist'
             instance = Task(body=row_dict, task_type=row_type)
             yield instance
 
