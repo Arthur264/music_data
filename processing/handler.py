@@ -12,6 +12,7 @@ from tqdm import tqdm
 import config
 from monitoring.monitor import ProcessMonitor
 from processing.task import Task
+from processing.dump_to_file import RotateJsonFile
 
 tqdm.monitor_interval = 0
 
@@ -53,13 +54,13 @@ def remove_logs():
         pass
 
 
-def get_task(files):
+def get_task(files, rotate, is_artist=False):
     for file_name in files:
         df = pd.read_csv(file_name)
         for index, row in df.iterrows():
             row_dict = row.to_dict()
-            row_type = 'song' if row_dict.get('artist') else 'artist'
-            instance = Task(body=row_dict, task_type=row_type)
+            row_type = 'artist' if is_artist else'song'
+            instance = Task(body=row_dict, task_type=row_type, rotate=rotate)
             yield instance
 
 
@@ -83,7 +84,9 @@ async def main(loop):
     create_folders()
     remove_logs()
     music_files, artist_files = get_files()
-    loop_tasks = [*get_task(music_files), *get_task(artist_files)]
+    rotate_song = RotateJsonFile('song')
+    rotate_artist = RotateJsonFile('artist')
+    loop_tasks = [*get_task(music_files, rotate_song), *get_task(artist_files, rotate_artist, is_artist=True)]
 
     thread = threading.Thread(target=monitoring_task_count, args=(loop,))
     thread.setDaemon(True)

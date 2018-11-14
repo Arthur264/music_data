@@ -1,7 +1,6 @@
 import asyncio
 import json
 
-import aiofiles
 from aiohttp import (
     ClientSession,
     ClientError,
@@ -15,10 +14,11 @@ class Task(object):
     _default_retries = 4
     _default_timeout = 60
 
-    def __init__(self, body, task_type='song', method='GET'):
+    def __init__(self, body, rotate, task_type='song', method='GET'):
         self.method = method
         self.task_type = task_type
         self.body = body
+        self.rotate = rotate
 
     @property
     def is_song_type(self):
@@ -46,15 +46,14 @@ class Task(object):
         res = await self._make_request(semaphore)
         res_json = json.loads(res)
         result = self.prepare_result(res_json)
-        await self.write_result_in_file(result)
+        self.write_result_in_file(result)
         self.complete(monitor)
 
     def complete(self, monitor):
         monitor.update_count(self.task_type)
 
-    async def write_result_in_file(self, result):
-        async with aiofiles.open(f'processing_result/{self.task_type}.json', mode='a') as out_file:
-            await out_file.write(json.dumps(result))
+    def write_result_in_file(self, result):
+        self.rotate.rotate_data(result)
 
     def prepare_result(self, data):
         if self.is_song_type:
