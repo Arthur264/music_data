@@ -46,14 +46,14 @@ class Task(object):
         res = await self._make_request(semaphore)
         res_json = json.loads(res)
         result = self.prepare_result(res_json)
-        self.write_result_in_file(result)
+        await self.write_result_in_file(result)
         self.complete(monitor)
 
     def complete(self, monitor):
         monitor.update_count(self.task_type)
 
-    def write_result_in_file(self, result):
-        self.rotate.rotate_data(result)
+    async def write_result_in_file(self, result):
+        await self.rotate.rotate_data(result)
 
     def prepare_result(self, data):
         if self.is_song_type:

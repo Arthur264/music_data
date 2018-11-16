@@ -1,8 +1,8 @@
-import io
 import json
 import os
 from abc import abstractmethod
 
+import aiofiles
 import numpy as np
 
 
@@ -17,14 +17,14 @@ class RotateFile(object):
         self.fn = None
 
     @abstractmethod
-    def write(self):
+    async def write(self):
         pass
 
-    def rotate_data(self, data):
+    async def rotate_data(self, data):
         self.stack = np.append(self.stack, data)
         stack_size = self.stack.size * self.stack.itemsize / 1024
         if stack_size > self.max_data_size:
-            self.write()
+            await self.write()
 
     def __del__(self):
         self.write()
@@ -37,8 +37,10 @@ class RotateFile(object):
 class RotateJsonFile(RotateFile):
     file_type = 'json'
 
-    def write(self):
-        with io.open(f'{self.filename_template}.{self.file_type}', 'a') as out_file:
-            json.dump(self.stack.tolist(), out_file, ensure_ascii=False)
+    async def write(self):
+        file_name = f'{self.filename_template}.{self.file_type}'
+        async with aiofiles.open(file_name, mode='a') as infile:
+            json_data = '\n'.join(json.dumps(item, ensure_ascii=False) for item in self.stack)
+            await infile.write(f'{json_data}\n')
 
         self.stack = np.array([])
