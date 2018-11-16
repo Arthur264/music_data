@@ -11,7 +11,7 @@ from tqdm import tqdm
 
 import config
 from monitoring.monitor import ProcessMonitor
-from processing.task import Task
+from processing.task import ProcessingTask
 from processing.dump_to_file import RotateJsonFile
 
 tqdm.monitor_interval = 0
@@ -60,7 +60,7 @@ def get_task(files, rotate, is_artist=False):
         for index, row in df.iterrows():
             row_dict = row.to_dict()
             row_type = 'artist' if is_artist else'song'
-            instance = Task(body=row_dict, task_type=row_type, rotate=rotate)
+            instance = ProcessingTask(body=row_dict, task_type=row_type, rotate=rotate)
             yield instance
 
 
@@ -74,6 +74,7 @@ def monitoring_task_count(loop):
             logging.info(f'Active tasks count: {active_task}')
             if not active_task:
                 break
+
         except RuntimeError:
             pass
 

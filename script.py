@@ -45,5 +45,4 @@ if __name__ == "__main__":
     if config.DEBUG:
         db.delete_db()
 
-    # main()
-    handler.run()
+    main()

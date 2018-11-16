@@ -9,7 +9,7 @@ from aiohttp import (
 from processing.last_api import LastFmApi
 
 
-class Task(object):
+class ProcessingTask(object):
     last_fm_api = LastFmApi()
     _default_retries = 4
     _default_timeout = 60
