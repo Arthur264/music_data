@@ -1,8 +1,8 @@
 from time import gmtime, strftime
 
-from database.connect import db
-from storage.queue import redis_queue
-from config import COUNT_EMIT_FILE_SIZE
+from code.database.connect import db
+from code.storage.queue import redis_queue
+from code.config import COUNT_EMIT_FILE_SIZE
 
 
 class BaseMonitor(object):

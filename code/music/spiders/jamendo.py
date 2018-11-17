@@ -2,8 +2,8 @@ import json
 
 import scrapy
 
-from music.items import MusicItem, ArtistItem
-from music.spiders.base import BaseSpider
+from code.music import MusicItem, ArtistItem
+from code.music import BaseSpider
 
 BASE_URL = 'https://solr.jamendo.com/solr/jamcom?rows=1000&q=*&start=25'
 

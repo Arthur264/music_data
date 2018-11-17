@@ -3,9 +3,9 @@ import time
 from flask import Flask, render_template
 from flask_socketio import SocketIO
 
-from database.connect import db
-from monitoring.config import CONFIG
-from storage.queue import redis_queue
+from code.database.connect import db
+from code.monitoring.config import CONFIG
+from code.storage.queue import redis_queue
 
 app = Flask(__name__)
 app.config.update(CONFIG)

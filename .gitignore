@@ -2,9 +2,9 @@
 .c9/
 .idea/
 venv/
-.scrapy/
-results/
-log/
-processing_result/
+code/.scrapy/
+code/results/
+code/log/
+code/processing_result/
 *.log
 log.txt

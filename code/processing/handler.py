@@ -9,10 +9,10 @@ import traceback
 import pandas as pd
 from tqdm import tqdm
 
-import config
-from monitoring.monitor import ProcessMonitor
-from processing.task import ProcessingTask
-from processing.dump_to_file import RotateJsonFile
+from code import config
+from code.monitoring.monitor import ProcessMonitor
+from code.processing.task import ProcessingTask
+from code.processing.dump_to_file import RotateJsonFile
 
 tqdm.monitor_interval = 0
 

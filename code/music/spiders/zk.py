@@ -2,8 +2,8 @@ import logging
 
 import scrapy
 
-from music.items import MusicItem, ArtistItem
-from music.spiders.base import BaseSpider
+from code.music import MusicItem, ArtistItem
+from code.music import BaseSpider
 
 
 class ZkSpider(BaseSpider):
