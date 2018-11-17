@@ -1,8 +1,8 @@
-FROM python:3.6.5-alpine3.7
+FROM python:3.6-alpine3.8
 
-RUN mkdir /code
+RUN mkdir -p /code
 WORKDIR /code
-ADD . /code/
+ADD ./code/ .
 
 RUN pip install -r requirements.txt
 ADD ./ .
