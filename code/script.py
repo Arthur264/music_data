@@ -6,12 +6,12 @@ from scrapy.crawler import CrawlerProcess
 from scrapy.utils.log import configure_logging
 from scrapy.utils.project import get_project_settings
 
-from code import config
-from code.database.connect import db
-from code.music import settings
-from code.music.spiders.jamendo import JamEnDoSpider
-from code.music.spiders.zk import ZkSpider
-from code.processing import handler
+import config
+from database.connect import db
+from music import settings
+from music.spiders.jamendo import JamEnDoSpider
+from music.spiders.zk import ZkSpider
+from processing import handler
 
 os.path.dirname(sys.modules['__main__'].__file__)
 

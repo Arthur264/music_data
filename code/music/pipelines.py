@@ -6,9 +6,9 @@ import time
 from fs import filesize
 from scrapy.exporters import CsvItemExporter
 
-from code import config
-from code.monitoring.monitor import CrawlerMonitor
-from code.music import MusicItem
+import config
+from monitoring.monitor import CrawlerMonitor
+from music.items import MusicItem
 
 
 class MusicPipeline(object):

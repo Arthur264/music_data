@@ -7,7 +7,7 @@ from urllib.parse import urljoin
 import psutil
 import scrapy
 
-from code.monitoring.monitor import CrawlerMonitor
+from monitoring.monitor import CrawlerMonitor
 
 USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36'
 HEADERS = {

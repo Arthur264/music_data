@@ -1,41 +1,36 @@
 version: '2'
-
 services:
   app:
     build: .
     container_name: 'app'
     hostname: app
-    command: python script.py
+    depends_on:
+    - mongodb
+    - redis
     volumes:
     - .:/code
     ports:
-    - 8080:8
-  monitoring_app:
-    container_name: 'monitoring_app'
-    hostname: monitoring_app
-    command: python monitoring/app.py
-    ports:
-    - 8080:80
+    - 8080:81
   redis:
     image: redis:5.0.1
     container_name: 'redis'
-    hostname: redis
-    networks:
-    - redis-net
-    volumes:
-    - redis-data:/data
-    ports:
-      6379:6379
-    command: redis-server -appendonly yes
-  mongodb:
-    image: mongo:latest
-    container_name: 'mongodb'
-    hostname: mongodb
+    hostname: "redis"
     environment:
-    - MONGO_DATA_DIR=/data/db
-    - MONGO_LOG_DIR=/dev/log
+    - ALLOW_EMPTY_PASSWORD=yes
     volumes:
-    - ./data/db:/data/db
+    - ./data/redis:/data/redis
     ports:
-    - 27017:27017
-    command: mongod --smallfiles --logpath=/dev/log
+    - 6379
+    command: redis-server
+  mongodb:
+    image: bitnami/mongodb:latest
+    container_name: 'mongodb'
+    ports:
+    - 27017
+    networks:
+    - app-tier
+
+networks:
+  app-tier:
+    driver: bridge
+

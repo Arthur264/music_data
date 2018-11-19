@@ -6,7 +6,7 @@ from aiohttp import (
     ClientError,
 )
 
-from code.processing.last_api import LastFmApi
+from processing.last_api import LastFmApi
 
 
 class ProcessingTask(object):

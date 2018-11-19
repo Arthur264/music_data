@@ -5,7 +5,7 @@ class Database(object):
 
     def __init__(self, name):
         self.db_name = name
-        self.conn = MongoClient('localhost', 27017)
+        self.conn = MongoClient('mongo', 27017)
         self.cur = getattr(self.conn, self.db_name)
 
     def connection(self):
