@@ -4,6 +4,8 @@ services:
     build: .
     container_name: 'app'
     hostname: app
+    environment:
+    - MONGO_URL=mongodb://mongo:27017/
     depends_on:
     - mongodb
     - redis
@@ -11,10 +13,11 @@ services:
     - .:/code
     ports:
     - 8080:81
+    command: python code/script.py
   redis:
     image: redis:5.0.1
     container_name: 'redis'
-    hostname: "redis"
+    hostname: 'redis'
     environment:
     - ALLOW_EMPTY_PASSWORD=yes
     volumes:
@@ -25,12 +28,10 @@ services:
   mongodb:
     image: bitnami/mongodb:latest
     container_name: 'mongodb'
+    hostname: 'mongo'
+    volumes:
+    - mongodata:/data/db
     ports:
     - 27017
-    networks:
-    - app-tier
-
-networks:
-  app-tier:
-    driver: bridge
-
+volumes:
+  mongodata:
