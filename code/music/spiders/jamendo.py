@@ -36,7 +36,9 @@ class JamEnDoSpider(BaseSpider):
         for name in unique_artist_names:
             yield ArtistItem(name=name)
 
-        return
+        if self.test_mode:
+            return
+
         yield scrapy.Request(
             self.api_url.format(start),
             meta={

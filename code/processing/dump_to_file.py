@@ -26,10 +26,8 @@ class RotateFile(object):
         if stack_size > self.max_data_size:
             await self.write()
 
-        self.stack = np.array([])
-
-    def __del__(self):
-        self.write()
+    async def complete(self):
+        await self.write()
 
     @property
     def file_name(self):
@@ -47,3 +45,5 @@ class RotateJsonFile(RotateFile):
         async with aiofiles.open(self.file_name, mode='a') as infile:
             json_data = '\n'.join(json.dumps(item, ensure_ascii=False) for item in self.stack)
             await infile.write(f'{json_data}\n')
+
+        self.stack = np.array([])

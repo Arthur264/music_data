@@ -11,9 +11,12 @@ class ZkSpider(BaseSpider):
     allowed_domains = ['zk.fm']
     handle_httpstatus_list = [304, 404]
     base_url = 'https://zk.fm'
-    count_page = 3
+    count_page = 10 ** 6
 
     def start_requests(self):
+        if self.test_mode:
+            self.count_page = 3
+
         for n in range(1, self.count_page):
             self.gc_clear()
 

@@ -38,11 +38,12 @@ def main():
     process.crawl(JamEnDoSpider)
     process.crawl(ZkSpider)
     process.start()
-    handler.run()
+
+    handler.start()
 
 
 if __name__ == "__main__":
     if config.DEBUG:
         db.delete_db()
 
-    main()
+    handler.start()

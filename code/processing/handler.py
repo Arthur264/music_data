@@ -85,9 +85,11 @@ async def main(loop):
     monitor = ProcessMonitor()
     tasks = [asyncio.ensure_future(loop_task.run(semaphore, monitor)) for loop_task in loop_tasks]
     await asyncio.gather(*tasks)
+    await rotate_artist.complete()
+    await rotate_song.complete()
 
 
-def run():
+def start():
     try:
         loop = asyncio.get_event_loop()
         loop.run_until_complete(main(loop))

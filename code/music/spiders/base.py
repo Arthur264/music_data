@@ -8,6 +8,7 @@ import psutil
 import scrapy
 
 from monitoring.monitor import CrawlerMonitor
+from config import TEST_MODE
 
 USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36'
 HEADERS = {
@@ -20,6 +21,7 @@ HEADERS = {
 
 class BaseSpider(scrapy.Spider):
     base_url = None
+    test_mode = TEST_MODE
     custom_settings = {
         'DEFAULT_REQUEST_HEADERS': HEADERS
     }
