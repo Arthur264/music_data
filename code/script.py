@@ -20,7 +20,7 @@ configure_logging(install_root_handler=True)
 logging.basicConfig(
     filename='log.txt',
     format=LOGGER_FORMAT,
-    level=logging.ERROR,
+    level=logging.INFO,
     datefmt='[%H:%M:%S]',
 )
 
@@ -46,4 +46,4 @@ if __name__ == "__main__":
     if config.DEBUG:
         db.delete_db()
 
-    handler.start()
+    main()

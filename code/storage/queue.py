@@ -2,14 +2,14 @@ import pickle
 
 import redis
 
-from config import LOCALLY
+import config
 
 
 class RedisQueue(object):
     """Simple Queue with Redis Backend"""
 
     def __init__(self, name, namespace='queue', **redis_kwargs):
-        if LOCALLY:
+        if config.LOCALLY:
             self.__db = redis.Redis(**redis_kwargs)
         else:
             self.__db = redis.Redis(host='redis', port=6379, **redis_kwargs)
