@@ -1,13 +1,17 @@
 import os
 
 from pymongo import MongoClient
+from config import LOCALLY
 
 
 class Database(object):
 
     def __init__(self, name):
         self.db_name = name
-        self.conn = MongoClient(os.environ['MONGO_URL'])
+        if LOCALLY:
+            self.conn = MongoClient('localhost', 27017)
+        else:
+            self.conn = MongoClient(os.environ['MONGO_URL'])
         self.cur = getattr(self.conn, self.db_name)
 
     def connection(self):

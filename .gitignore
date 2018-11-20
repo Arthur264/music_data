@@ -2,9 +2,10 @@
 .c9/
 .idea/
 venv/
-code/.scrapy/
-code/results/
+.scrapy/
+results/
 code/log/
 code/processing_result/
 *.log
 log.txt
+docker_data/

@@ -5,7 +5,10 @@ services:
     container_name: 'app'
     hostname: app
     environment:
-    - MONGO_URL=mongodb://mongo:27017/
+    - MONGO_URL=mongodb://mongodb:27017/
+    links:
+    - mongodb
+    - redis
     depends_on:
     - mongodb
     - redis
@@ -21,17 +24,20 @@ services:
     environment:
     - ALLOW_EMPTY_PASSWORD=yes
     volumes:
-    - ./data/redis:/data/redis
+    - ./docker_data/redis:/docker_data/redis
     ports:
     - 6379
     command: redis-server
   mongodb:
-    image: bitnami/mongodb:latest
+    image: mongo:latest
     container_name: 'mongodb'
-    hostname: 'mongo'
+    environment:
+    - MONGO_DATA_DIR=/docker_data/db
+    - MONGO_LOG_DIR=/dev/null
     volumes:
-    - mongodata:/data/db
+    - mongodb:/docker_data/db
     ports:
     - 27017
+    command: mongod --smallfiles --dbpath=/docker_data/db
 volumes:
-  mongodata:
+  mongodb:

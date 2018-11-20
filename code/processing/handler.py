@@ -11,8 +11,9 @@ from tqdm import tqdm
 
 import config
 from monitoring.monitor import ProcessMonitor
-from processing.task import ProcessingTask
 from processing.dump_to_file import RotateJsonFile
+from processing.task import ProcessingTask
+from processing.utils import create_folder, remove_folder, clear_file
 
 tqdm.monitor_interval = 0
 
@@ -35,23 +36,11 @@ def get_files(folder_name='results'):
     return music_files, artist_files
 
 
-def create_folders():
-    try:
-        os.rmdir(config.PROCESSING_DIR)
-        logging.info("Removed folder: 'processing_result'")
-    except OSError:
-        pass
-
-    try:
-        os.makedirs(config.PROCESSING_DIR)
-        logging.info("Created folder: 'processing_result'")
-    except OSError:
-        return
-
-
-def remove_logs():
-    with io.open('log/log.text', 'w'):
-        pass
+def before_processing():
+    remove_folder(config.PROCESSING_DIR)
+    create_folder(config.PROCESSING_DIR)
+    create_folder('log', exist=True)
+    clear_file('log/log.text')
 
 
 def get_task(files, rotate, is_artist=False):
@@ -59,7 +48,7 @@ def get_task(files, rotate, is_artist=False):
         df = pd.read_csv(file_name)
         for index, row in df.iterrows():
             row_dict = row.to_dict()
-            row_type = 'artist' if is_artist else'song'
+            row_type = 'artist' if is_artist else 'song'
             instance = ProcessingTask(body=row_dict, task_type=row_type, rotate=rotate)
             yield instance
 
@@ -82,8 +71,7 @@ def monitoring_task_count(loop):
 
 
 async def main(loop):
-    create_folders()
-    remove_logs()
+    before_processing()
     music_files, artist_files = get_files()
     rotate_song = RotateJsonFile('song')
     rotate_artist = RotateJsonFile('artist')
