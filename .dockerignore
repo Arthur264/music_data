@@ -1,0 +1,10 @@
+.DS_Store
+.idea
+.venv
+.cache
+**/.git
+*.log
+.scrapy/
+log/
+results/
+processing_result/

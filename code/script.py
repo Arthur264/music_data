@@ -27,12 +27,7 @@ logging.basicConfig(
 
 def main():
     project_settings = get_project_settings()
-
-    for item in dir(settings):
-        if item.startswith("__"):
-            continue
-
-        project_settings.setdict({item: getattr(settings, item)})
+    project_settings.setdict({item: getattr(settings, item) for item in dir(settings) if not item.startswith('__')})
 
     process = CrawlerProcess(project_settings)
     process.crawl(JamEnDoSpider)
