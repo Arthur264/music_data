@@ -16,7 +16,9 @@ services:
     - .:/code
     ports:
     - 8080:81
-    command: python code/script.py
+    command: >
+      bash -c 'python code/script.py &&
+               python code/monitoring/app.py'
   redis:
     image: redis:5.0.1
     container_name: 'redis'
@@ -35,9 +37,7 @@ services:
     - MONGO_DATA_DIR=/docker_data/db
     - MONGO_LOG_DIR=/dev/null
     volumes:
-    - mongodb:/docker_data/db
+    - ./docker_data/db:/docker_data/db
     ports:
     - 27017
     command: mongod --smallfiles --dbpath=/docker_data/db
-volumes:
-  mongodb:

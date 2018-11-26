@@ -40,7 +40,7 @@ def before_processing():
     remove_folder(config.PROCESSING_DIR)
     create_folder(config.PROCESSING_DIR)
     create_folder('log', exist=True)
-    clear_file('log/log.text')
+    clear_file('log/log.txt')
 
 
 def get_task(files, rotate, is_artist=False):

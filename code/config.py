@@ -1,7 +1,7 @@
-import os
+from os.path import dirname, abspath, join
 
-ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-PROCESSING_DIR = os.path.join(ROOT_DIR, 'processing_result')
+ROOT_DIR = dirname(abspath(dirname(__file__)))
+PROCESSING_DIR = join(ROOT_DIR, 'processing_result')
 
 COUNT_TASK_EVENT_LOOP = 500
 COUNT_EMIT_SONG_ITEMS = 1000
@@ -12,3 +12,4 @@ DEBUG = True
 
 LOCALLY = True
 TEST_MODE = True
+

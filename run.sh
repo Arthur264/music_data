@@ -1,1 +1,2 @@
-sudo nohup python music.py &
+#!/usr/bin/env bash
+docker-compose run --service-port app

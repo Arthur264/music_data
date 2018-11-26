@@ -1,5 +1,4 @@
 PACKAGE=app
-TESTS_DIR=tests
 
 all: default
 
@@ -11,9 +10,8 @@ deps:
 clean:
 	find . -type f -name '*.pyc' -delete
 	find . -type f -path '*/__pycache__/*' -delete
-	find . -type d -empty -delete
-	@rm -rf tmp_test/
+	rm -rf ./log/ && rm -rf ./results/ && rm -rf ./processing_result/ && rm -rf .scrapy/
 
 serve:
-	python start_broker.py
+	python code/script.py
 

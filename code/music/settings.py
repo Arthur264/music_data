@@ -6,7 +6,6 @@ HTTPCACHE_DIR = 'httpcache'
 HTTPCACHE_IGNORE_HTTP_CODES = []
 HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 LOG_LEVEL = 'CRITICAL'
-LOG_FILE = 'logfile.log'
 LOG_ENABLED = False
 RETRY_TIMES = 5
 ITEM_PIPELINES = {
