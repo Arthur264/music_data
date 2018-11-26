@@ -15,10 +15,10 @@ services:
     volumes:
     - .:/code
     ports:
-    - 8080:81
+    - 8081:8081
     command: >
       bash -c 'python code/script.py &&
-               python code/monitoring/app.py'
+               python code/app.py'
   redis:
     image: redis:5.0.1
     container_name: 'redis'
