@@ -1,6 +1,7 @@
 import logging
 import os
 import sys
+from argparse import ArgumentParser
 
 from scrapy.crawler import CrawlerProcess
 from scrapy.utils.log import configure_logging
@@ -25,10 +26,13 @@ logging.basicConfig(
 )
 
 
-def main():
+def main(only_handle):
+    if only_handle:
+        handler.start()
+        return
+
     project_settings = get_project_settings()
     project_settings.setdict({item: getattr(settings, item) for item in dir(settings) if not item.startswith('__')})
-
     process = CrawlerProcess(project_settings)
     process.crawl(JamEnDoSpider)
     process.crawl(ZkSpider)
@@ -41,4 +45,9 @@ if __name__ == "__main__":
     if config.DEBUG:
         db.delete_db()
 
-    main()
+    parser = ArgumentParser()
+    parser.add_argument('--handle', dest='handle', help='only handle', action='store_true')
+    parser.set_defaults(handle=False)
+
+    args = parser.parse_args()
+    main(args.handle)
