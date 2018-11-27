@@ -1,6 +1,6 @@
 from os.path import dirname, abspath, join
 
-ROOT_DIR = dirname(abspath(dirname(__file__)))
+ROOT_DIR = abspath(dirname(__file__))
 PROCESSING_DIR = join(ROOT_DIR, 'processing_result')
 
 COUNT_TASK_EVENT_LOOP = 500
