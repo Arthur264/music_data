@@ -9,15 +9,22 @@ services:
     links:
     - mongodb
     - redis
+    - monitoring_app
     depends_on:
     - mongodb
     - redis
+    - monitoring_app
     volumes:
     - .:/code
+    command: python script.py
+  monitoring_app:
+    build: .
+    container_name: 'monitoring_app'
+    environment:
+    - MONGO_URL=mongodb://mongodb:27017/
     ports:
     - 8081:8081
-    command: >
-      bash -c 'python monitoring/app.py'
+    command: python app.py
   redis:
     image: redis:5.0.1
     container_name: 'redis'

@@ -3,7 +3,7 @@ aiohttp
 beautifulsoup4
 fs
 flask
-flask-socketio==1.0b1
+flask-socketio
 html5lib
 ipython
 lxml
