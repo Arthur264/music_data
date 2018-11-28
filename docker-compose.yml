@@ -16,7 +16,7 @@ services:
     - monitoring_app
     volumes:
     - .:/code
-    command: python script.py
+    command: python script.py --handle
   monitoring_app:
     build: .
     container_name: 'monitoring_app'
