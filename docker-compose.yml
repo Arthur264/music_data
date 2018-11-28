@@ -17,8 +17,7 @@ services:
     ports:
     - 8081:8081
     command: >
-      bash -c 'python code/script.py &&
-               python code/app.py'
+      bash -c 'python monitoring/app.py'
   redis:
     image: redis:5.0.1
     container_name: 'redis'

@@ -2,8 +2,8 @@ aiofiles
 aiohttp
 beautifulsoup4
 fs
-Flask
-Flask-SocketIO
+flask
+flask-socketio==1.0b1
 html5lib
 ipython
 lxml

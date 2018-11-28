@@ -1,10 +1,11 @@
 .DS_Store
-.idea
+.idea/
 .venv
 .cache
-**/.git
+.git/
 *.log
 .scrapy/
 log/
 results/
 processing_result/
+venv/

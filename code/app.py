@@ -39,4 +39,4 @@ def test_connect():
 
 
 if __name__ == '__main__':
-    socket_io.run(app, port=8081)
+    socket_io.run(app, host='0.0.0.0', port=8081)
