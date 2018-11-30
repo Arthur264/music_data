@@ -47,3 +47,6 @@ services:
     ports:
     - 27017
     command: mongod --smallfiles --dbpath=/docker_data/db
+    depends_on:
+    - mongodb
+    - redis
