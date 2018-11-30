@@ -19,6 +19,9 @@ services:
     ports:
     - 8081:8081
     command: python app.py
+    depends_on:
+    - mongodb
+    - redis
   redis:
     image: redis:5.0.1
     container_name: 'redis'
@@ -41,6 +44,4 @@ services:
     ports:
     - 27017
     command: mongod --smallfiles --dbpath=/docker_data/db
-    depends_on:
-    - mongodb
-    - redis
+
