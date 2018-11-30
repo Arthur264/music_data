@@ -6,6 +6,5 @@
 *.log
 .scrapy/
 log/
-results/
 processing_result/
 venv/
