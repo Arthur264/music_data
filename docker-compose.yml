@@ -9,6 +9,7 @@ services:
     volumes:
     - ./results:/app/results
     - ./processing_result:/app/processing_result
+    image: arthur264/music:tagname
     command: python script.py
   monitoring_app:
     build: .
@@ -17,6 +18,7 @@ services:
     ports:
     - 8081:8081
     command: python app.py
+    image: arthur264/music:tagname
     depends_on:
     - mongodb
     - redis
