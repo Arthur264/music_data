@@ -1,19 +1,17 @@
-version: '2'
+version: '3'
 services:
   app:
     build: .
-    container_name: 'app'
-    hostname: app
     environment:
     - MONGO_URL=mongodb://mongodb:27017/
     depends_on:
     - monitoring_app
     volumes:
-    - .:/code
-    command: python script.py --handle
+    - ./results:/app/results
+    - ./processing_result:/app/processing_result
+    command: python script.py
   monitoring_app:
     build: .
-    container_name: 'monitoring_app'
     environment:
     - MONGO_URL=mongodb://mongodb:27017/
     ports:
@@ -24,18 +22,13 @@ services:
     - redis
   redis:
     image: redis:5.0.1
-    container_name: 'redis'
-    hostname: 'redis'
     environment:
     - ALLOW_EMPTY_PASSWORD=yes
-    volumes:
-    - ./docker_data/redis:/docker_data/redis
     ports:
     - 6379
     command: redis-server
   mongodb:
     image: mongo:latest
-    container_name: 'mongodb'
     environment:
     - MONGO_DATA_DIR=/docker_data/db
     - MONGO_LOG_DIR=/dev/null

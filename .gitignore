@@ -4,8 +4,8 @@
 venv/
 .scrapy/
 results/
-code/log/
-code/processing_result/
+log/
+processing_result/
 *.log
 log.txt
 docker_data/
