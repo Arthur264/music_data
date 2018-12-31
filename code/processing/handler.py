@@ -5,6 +5,7 @@ import os
 import threading
 import time
 import traceback
+from itertools import chain
 
 import pandas as pd
 from tqdm import tqdm
@@ -45,7 +46,7 @@ def before_processing():
 
 def get_task(files, rotate, is_artist=False):
     for file_name in files:
-        df = pd.read_csv(file_name)
+        df = pd.read_csv(file_name, chunksize=10**6)
         for index, row in df.iterrows():
             row_dict = row.to_dict()
             row_type = 'artist' if is_artist else 'song'
@@ -75,7 +76,7 @@ async def main(loop):
     music_files, artist_files = get_files()
     rotate_song = RotateJsonFile('song')
     rotate_artist = RotateJsonFile('artist')
-    loop_tasks = [*get_task(music_files, rotate_song), *get_task(artist_files, rotate_artist, is_artist=True)]
+    loop_tasks = chain(get_task(music_files, rotate_song), get_task(artist_files, rotate_artist, is_artist=True))
 
     thread = threading.Thread(target=monitoring_task_count, args=(loop,))
     thread.setDaemon(True)

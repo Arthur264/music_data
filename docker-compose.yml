@@ -10,7 +10,12 @@ services:
     - ./results:/app/results
     - ./processing_result:/app/processing_result
     image: arthur264/music:tagname
-    command: python script.py
+    command: python script.py --handle
+    deploy:
+      resources:
+        limits:
+          cpus: '0.6'
+          memory: 100M
   monitoring_app:
     build: .
     environment:
@@ -29,6 +34,11 @@ services:
     ports:
     - 6379
     command: redis-server
+    deploy:
+      resources:
+        limits:
+          cpus: '0.1'
+          memory: 50M
   mongodb:
     image: mongo:latest
     environment:

@@ -15,7 +15,7 @@ class ZkSpider(BaseSpider):
 
     def start_requests(self):
         if self.test_mode:
-            self.count_page = 3
+            self.count_page = 5
 
         for n in range(1, self.count_page):
             self.gc_clear()
