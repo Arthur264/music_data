@@ -5,7 +5,7 @@ import os
 import threading
 import time
 import traceback
-from itertools import chain
+from itertools import chain, islice
 
 import pandas as pd
 from tqdm import tqdm
@@ -46,8 +46,7 @@ def before_processing():
 
 def get_task(files, rotate, is_artist=False):
     for file_name in files:
-        df = pd.read_csv(file_name, chunksize=10**6)
-        for index, row in df.iterrows():
+        for row in pd.read_csv(file_name, chunksize=10**6):
             row_dict = row.to_dict()
             row_type = 'artist' if is_artist else 'song'
             instance = ProcessingTask(body=row_dict, task_type=row_type, rotate=rotate)
@@ -84,18 +83,20 @@ async def main(loop):
 
     semaphore = asyncio.Semaphore(config.COUNT_TASK_EVENT_LOOP)
     monitor = ProcessMonitor()
-    tasks = [asyncio.ensure_future(loop_task.run(semaphore, monitor)) for loop_task in loop_tasks]
-    await asyncio.gather(*tasks)
-    await rotate_artist.complete()
-    await rotate_song.complete()
+    for chucks in islice(loop_tasks, config.COUNT_TASK_EVENT_LOOP):
+        tasks = [asyncio.ensure_future(chuck.run(semaphore, monitor)) for chuck in chucks]
+        await asyncio.gather(*tasks)
+        await rotate_artist.complete()
+        await rotate_song.complete()
 
 
 def start():
+    loop = asyncio.get_event_loop()
     try:
-        loop = asyncio.get_event_loop()
         loop.run_until_complete(main(loop))
-        loop.close()
     except Exception as e:
         with io.open('log/log.txt', 'a') as log_file:
             log_file.write(str(e))
             log_file.write(traceback.format_exc())
+    finally:
+        loop.close()
