@@ -5,7 +5,7 @@ import os
 import threading
 import time
 import traceback
-from itertools import chain, islice
+from itertools import chain
 
 import pandas as pd
 from tqdm import tqdm
@@ -50,7 +50,7 @@ def get_task(files, rotate, is_artist=False):
     for file_name in files:
         tp = pd.read_csv(
             file_name,
-            chunksize=10*3,
+            chunksize=10 * 3,
             low_memory=False,
             names=COLUMN_NAMES_ARTIST if is_artist else COLUMN_NAMES_MUSIC,
         )
@@ -77,16 +77,6 @@ def monitoring_task_count(loop):
             pass
 
         time.sleep(1)
-
-
-def make_chunks(iterable, size=10):
-    while size:
-        size -= 1
-        result = islice(iterable, size)
-        if not result:
-            break
-
-        yield result
 
 
 async def main(loop):
