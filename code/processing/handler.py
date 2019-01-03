@@ -5,7 +5,7 @@ import os
 import threading
 import time
 import traceback
-from itertools import chain
+from itertools import chain, islice
 
 import pandas as pd
 from tqdm import tqdm
@@ -17,6 +17,8 @@ from processing.task import ProcessingTask
 from processing.utils import create_folder, remove_folder, clear_file
 
 tqdm.monitor_interval = 0
+COLUMN_NAMES_MUSIC = ('artist', 'name', 'url')
+COLUMN_NAMES_ARTIST = ('name',)
 
 
 def get_files(folder_name='results'):
@@ -46,8 +48,14 @@ def before_processing():
 
 def get_task(files, rotate, is_artist=False):
     for file_name in files:
-        df = pd.read_csv(file_name, chunksize=10**6)
-        for index, row in df.iterrows():
+        tp = pd.read_csv(
+            file_name,
+            chunksize=10*3,
+            low_memory=False,
+            names=COLUMN_NAMES_ARTIST if is_artist else COLUMN_NAMES_MUSIC,
+        )
+        df = pd.concat(tp)
+        for _, row in df.iterrows():
             row_dict = row.to_dict()
             row_type = 'artist' if is_artist else 'song'
             instance = ProcessingTask(body=row_dict, task_type=row_type, rotate=rotate)
@@ -71,12 +79,22 @@ def monitoring_task_count(loop):
         time.sleep(1)
 
 
+def make_chunks(iterable, size=10):
+    while size:
+        size -= 1
+        result = islice(iterable, size)
+        if not result:
+            break
+
+        yield result
+
+
 async def main(loop):
     before_processing()
     music_files, artist_files = get_files()
     rotate_song = RotateJsonFile('song')
     rotate_artist = RotateJsonFile('artist')
-    loop_tasks = chain(get_task(music_files, rotate_song), get_task(artist_files, rotate_artist, is_artist=True))
+    tasks_gen = chain(get_task(music_files, rotate_song), get_task(artist_files, rotate_artist, is_artist=True))
 
     thread = threading.Thread(target=monitoring_task_count, args=(loop,))
     thread.setDaemon(True)
@@ -84,10 +102,9 @@ async def main(loop):
 
     semaphore = asyncio.Semaphore(config.COUNT_TASK_EVENT_LOOP)
     monitor = ProcessMonitor()
-    tasks = [asyncio.ensure_future(loop_task.run(semaphore, monitor)) for loop_task in loop_tasks]
-    await asyncio.gather(*tasks)
-    await rotate_artist.complete()
-    await rotate_song.complete()
+    # for chucks in make_chunks(tasks_gen, size=config.COUNT_TASK_EVENT_LOOP):
+    await asyncio.gather(*[asyncio.ensure_future(chuck.run(semaphore, monitor)) for chuck in tasks_gen])
+    await asyncio.gather(*[rotate_artist.complete(), rotate_song.complete()])
 
 
 def start():

@@ -7,10 +7,11 @@ services:
     depends_on:
     - monitoring_app
     volumes:
-    - ./results:/app/results
-    - ./processing_result:/app/processing_result
+      - .:/code
+      - ./results:/app/results
+      - ./processing_result:/app/processing_result
     image: arthur264/music:tagname
-    command: python script.py --handle
+    command: python script.py
     deploy:
       resources:
         limits:
