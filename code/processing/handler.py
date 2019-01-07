@@ -5,7 +5,7 @@ import os
 import threading
 import time
 import traceback
-from itertools import chain, islice
+from itertools import chain
 
 import pandas as pd
 from tqdm import tqdm
@@ -50,7 +50,7 @@ def get_task(files, rotate, is_artist=False):
     for file_name in files:
         tp = pd.read_csv(
             file_name,
-            chunksize=10*3,
+            chunksize=10 * 3,
             low_memory=False,
             names=COLUMN_NAMES_ARTIST if is_artist else COLUMN_NAMES_MUSIC,
         )
@@ -79,16 +79,6 @@ def monitoring_task_count(loop):
         time.sleep(1)
 
 
-def make_chunks(iterable, size=10):
-    while size:
-        size -= 1
-        result = islice(iterable, size)
-        if not result:
-            break
-
-        yield result
-
-
 async def main(loop):
     before_processing()
     music_files, artist_files = get_files()
@@ -108,11 +98,12 @@ async def main(loop):
 
 
 def start():
+    loop = asyncio.get_event_loop()
     try:
-        loop = asyncio.get_event_loop()
         loop.run_until_complete(main(loop))
-        loop.close()
     except Exception as e:
         with io.open('log/log.txt', 'a') as log_file:
             log_file.write(str(e))
             log_file.write(traceback.format_exc())
+    finally:
+        loop.close()
