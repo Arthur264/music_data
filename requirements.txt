@@ -1,19 +1,17 @@
+# Processing
 aiofiles
 aiohttp
 beautifulsoup4
-fs
 flask
-flask-socketio
 html5lib
 ipython
 lxml
 pandas==0.23.4
-psutil
-pymongo
-redis
 Scrapy
+psutil
 tqdm
+requests
 
 # Metrics
-sanic-flask_prometheus
+flask_prometheus
 prometheus-client

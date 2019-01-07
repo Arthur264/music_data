@@ -27,9 +27,9 @@ class BaseSpider(scrapy.Spider):
     }
 
     def __init__(self, *args, **kwargs):
-        self.monitor = CrawlerMonitor()
-        self.memory_usage()
         super().__init__(*args, **kwargs)
+        self.monitor = CrawlerMonitor(self.name)
+        self.memory_usage()
 
     @abstractmethod
     def parse(self, response):
@@ -38,7 +38,7 @@ class BaseSpider(scrapy.Spider):
     def memory_usage(self):
         process = psutil.Process(os.getpid())
         mem = process.memory_info()[0] / float(2 ** 20)
-        self.monitor.update_memory(self.name, mem)
+        # self.monitor.update_memory(self.name, mem)
         return mem
 
     def get_url(self, url):

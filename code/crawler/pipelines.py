@@ -25,7 +25,8 @@ class MusicPipeline(object):
     is_start_export = False
 
     def __init__(self):
-        self.monitor = CrawlerMonitor()
+        pass
+        # self.monitor = CrawlerMonitor()
 
     def start_export(self, spider_name):
         self.current_time = time.strftime('%m_%d_%H_%M')
@@ -47,13 +48,13 @@ class MusicPipeline(object):
     def close_spider(self, spider):
         self.music.finish_exporting()
         self.file_music.close()
-        file_music_size = self.get_file_size(self.file_music_name)
-        self.monitor.update_size(spider.name, 'song', file_music_size, self.count_song)
+        # file_music_size = self.get_file_size(self.file_music_name)
+        # self.monitor.update_size(spider.name, 'song', file_music_size, self.count_song)
 
         self.artist.finish_exporting()
         self.file_artist.close()
-        file_artist_size = self.get_file_size(self.file_artist_name)
-        self.monitor.update_size(spider.name, 'artist', file_artist_size, self.count_artist)
+        # file_artist_size = self.get_file_size(self.file_artist_name)
+        # self.monitor.update_size(spider.name, 'artist', file_artist_size, self.count_artist)
 
     def process_item(self, item, spider):
         if not self.is_start_export:
@@ -61,16 +62,16 @@ class MusicPipeline(object):
 
         if isinstance(item, MusicItem):
             self.music.export_item(item)
-            self.count_song += 1
-            if self.count_song % config.COUNT_EMIT_SONG_ITEMS == 0:
-                file_size = self.get_file_size(self.file_music_name)
-                self.monitor.update_size(spider.name, 'song', file_size, self.count_song)
+            # self.count_song += 1
+            # if self.count_song % config.COUNT_EMIT_SONG_ITEMS == 0:
+            #     file_size = self.get_file_size(self.file_music_name)
+            #     self.monitor.update_size(spider.name, 'song', file_size, self.count_song)
         else:
-            self.count_artist += 1
-            if self.count_artist % config.COUNT_EMIT_ARTIST_ITEMS == 0:
-                file_size = self.get_file_size(self.file_artist_name)
-                self.monitor.update_size(spider.name, 'artist', file_size, self.count_artist)
-                logging.info(f'Artist added {self.count_artist}')
+            # self.count_artist += 1
+            # if self.count_artist % config.COUNT_EMIT_ARTIST_ITEMS == 0:
+            #     file_size = self.get_file_size(self.file_artist_name)
+                # self.monitor.update_size(spider.name, 'artist', file_size, self.count_artist)
+                # logging.info(f'Artist added {self.count_artist}')
             self.artist.export_item(item)
         return item
 

@@ -41,6 +41,7 @@ class ZkSpider(BaseSpider):
             logging.error('Error: encode')
             return
 
+        self.monitor.update_artist_count()
         yield ArtistItem(name=title)
 
         response.meta['artist_name'] = title
@@ -67,6 +68,7 @@ class ZkSpider(BaseSpider):
                 continue
 
         for song_dict in items:
+            self.monitor.update_song_count()
             yield MusicItem(song_dict)
 
         next_page = response.css('a.next-btn')

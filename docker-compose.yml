@@ -3,20 +3,15 @@ services:
   app:
     build: .
     depends_on:
-      - monitoring_app
+      - prometheus
+      - grafana
+    ports:
+      - 8080:8080
     volumes:
       - .:/code
       - ./results:/app/results
       - ./processing_result:/app/processing_result
-    command: python script.py
-  monitoring_app:
-    build: .
-    ports:
-      - 8081:8081
-    command: python app.py
-    depends_on:
-      - prometheus
-      - grafana
+    command: python manage.py
   prometheus:
     image: prom/prometheus:v2.1.0
     volumes:
@@ -32,4 +27,8 @@ services:
     volumes:
       - grafana_data:/var/lib/grafana
     restart: always
+
+volumes:
+  grafana_data:
+  prometheus_data:
 
