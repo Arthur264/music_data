@@ -6,5 +6,5 @@ LOG_ENABLED = True
 
 RETRY_TIMES = 5
 ITEM_PIPELINES = {
-    'music.pipelines.MusicPipeline': 800
+    'crawler.pipelines.MusicPipeline': 800
 }

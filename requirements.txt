@@ -13,3 +13,7 @@ pymongo
 redis
 Scrapy
 tqdm
+
+# Metrics
+sanic-flask_prometheus
+prometheus-client

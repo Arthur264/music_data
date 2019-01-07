@@ -1,6 +1,5 @@
 from time import gmtime, strftime
 
-from database.connect import db
 from storage.queue import redis_queue
 from config import COUNT_EMIT_FILE_SIZE
 

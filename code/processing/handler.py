@@ -29,7 +29,7 @@ def get_files(folder_name='results'):
             file_path = os.path.join(path, file_name)
             _, file_tail = os.path.split(file_path)
             full_path = os.path.abspath(file_path)
-            if 'music' in file_tail:
+            if 'crawler' in file_tail:
                 music_files.append(full_path)
             elif 'artist' in file_tail:
                 artist_files.append(full_path)

@@ -13,7 +13,7 @@ Headers = {
 
 
 class MusicApi(object):
-    api_url = 'http://music-artyr264.c9users.io:8081/api/v1/{}/?format=json'
+    api_url = 'http://crawler-artyr264.c9users.io:8081/api/v1/{}/?format=json'
 
     def __init__(self):
         pass

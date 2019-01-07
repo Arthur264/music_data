@@ -8,7 +8,7 @@ from scrapy.exporters import CsvItemExporter
 
 import config
 from monitoring.monitor import CrawlerMonitor
-from music.items import MusicItem
+from crawler.items import MusicItem
 
 
 class MusicPipeline(object):
@@ -32,7 +32,7 @@ class MusicPipeline(object):
         folder_name = f'{spider_name}_{self.current_time}'
         self.create_folder(folder_name)
 
-        self.file_music_name = os.path.join(self.folder_path, folder_name, 'music.csv')
+        self.file_music_name = os.path.join(self.folder_path, folder_name, 'crawler.csv')
         self.file_music = io.open(self.file_music_name, 'wb')
         self.music = CsvItemExporter(self.file_music, encoding='utf-8')
         self.music.start_exporting()
