@@ -11,5 +11,5 @@ COUNT_EMIT_FILE_SIZE = 100
 DEBUG = False
 
 LOCALLY = False
-TEST_MODE = False
+TEST_MODE = True
 
