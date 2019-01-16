@@ -32,6 +32,7 @@ app.config.update(CONFIG)
 
 def process_run(handle, processing, items):
     if processing:
+        print('1111111111111111')
         project_settings = get_project_settings()
         project_settings.setdict({item: getattr(settings, item) for item in dir(settings) if not item.startswith('__')})
         process = CrawlerProcess(project_settings)
@@ -51,10 +52,9 @@ def start():
     body = request.data or {}
     handle = body.get('handle', True)
     processing = body.get('processing', True)
-    items = body.get('items', [JamEnDoSpider, ZkSpider])
+    items = body.get('items', [JamEnDoSpider])
     thread = Process(target=process_run, args=(handle, processing, items))
     thread.start()
-
     return 'OK'
 
 

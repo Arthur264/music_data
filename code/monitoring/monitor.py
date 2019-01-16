@@ -5,7 +5,7 @@ class CrawlerMonitor(object):
 
     def __init__(self, spider_name):
         self.spider_name = spider_name
-        self.metrics = PrometheusMetrics('crawler_item', ['spider_name', 'type'])
+        self.metrics = PrometheusMetrics(f'crawler_item_{spider_name}', ['type'])
 
     def update_artist_count(self):
         self.metrics.inc({
@@ -18,14 +18,6 @@ class CrawlerMonitor(object):
             'spider_name': self.spider_name,
             'type': 'song',
         })
-
-    def update_size(self, spider_name, file_type, size, count):
-        data = {'spider_name': spider_name, 'file_type': file_type, 'size': size, 'count': count}
-        # db.update(
-        #     'file_size',
-        #     {'file_type': file_type, 'spider_name': spider_name},
-        #     {'$set': data}
-        # )
 
 
 class ProcessMonitor(object):

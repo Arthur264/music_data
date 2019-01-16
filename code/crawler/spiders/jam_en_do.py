@@ -14,12 +14,15 @@ class JamEnDoSpider(BaseSpider):
     count_rows = 1000
     api_url = 'https://solr.jamendo.com/solr/jamcom?rows=1000&q=*&start={}'
     start_urls = [api_url.format(0)]
+    custom_settings = {
+        'RETRY_HTTP_CODES': [500, 502, 503, 504, 400, 403, 404, 405, 408, 410, 110, 111, 112, 113],
+        'DOWNLOAD_DELAY': 0.25,
+    }
 
     def parse(self, response):
         start = response.meta.get('start', 0) + self.count_rows
         unique_artist_names = set()
         json_data = json.loads(response.body.decode('utf-8'))['response']['docs']
-        self.memory_usage()
         if not json_data:
             return
 

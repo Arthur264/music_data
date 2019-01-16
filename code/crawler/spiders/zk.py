@@ -27,7 +27,6 @@ class ZkSpider(BaseSpider):
             )
 
     def parse(self, response):
-        self.memory_usage()
         if response.status in [404]:
             logging.error('Error: 404')
             return
