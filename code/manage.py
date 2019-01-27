@@ -11,7 +11,6 @@ from scrapy.utils.project import get_project_settings
 
 from crawler import settings
 from crawler.spiders.jam_en_do import JamEnDoSpider
-from crawler.spiders.zk import ZkSpider
 from monitoring.config import CONFIG
 from processing import handler
 
@@ -32,9 +31,10 @@ app.config.update(CONFIG)
 
 def process_run(handle, processing, items):
     if processing:
-        print('1111111111111111')
         project_settings = get_project_settings()
-        project_settings.setdict({item: getattr(settings, item) for item in dir(settings) if not item.startswith('__')})
+        project_settings.setdict({
+            item: getattr(settings, item) for item in dir(settings) if not item.startswith('__')
+        })
         process = CrawlerProcess(project_settings)
         for item in items:
             process.crawl(item)
