@@ -11,7 +11,6 @@ services:
       - .:/code
       - ./results:/app/results
       - ./processing_result:/app/processing_result
-#    command: python manage.py
   prometheus:
     image: prom/prometheus:v2.1.0
     volumes:

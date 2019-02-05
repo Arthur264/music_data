@@ -32,7 +32,7 @@ class JamEnDoSpider(BaseSpider):
             song_info = {
                 'name': data['name'],
                 'url': self.song_url.format(data['id']),
-                'artist': artist_name
+                'artist': artist_name,
             }
             self.monitor.update_song_count()
             yield MusicItem(song_info)

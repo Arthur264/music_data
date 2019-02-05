@@ -19,7 +19,7 @@ os.path.dirname(sys.modules['__main__'].__file__)
 LOGGER_FORMAT = '%(asctime)s %(message)s'
 configure_logging(install_root_handler=True)
 logging.basicConfig(
-    filename='log.txt',
+    # filename='log.txt',
     format=LOGGER_FORMAT,
     level=logging.INFO,
     datefmt='[%H:%M:%S]',
@@ -29,8 +29,8 @@ app = Flask(__name__)
 app.config.update(CONFIG)
 
 
-def process_run(handle, processing, items):
-    if processing:
+def process_run(crawl, processing, items):
+    if crawl:
         project_settings = get_project_settings()
         project_settings.setdict({
             item: getattr(settings, item) for item in dir(settings) if not item.startswith('__')
@@ -41,7 +41,7 @@ def process_run(handle, processing, items):
 
         process.start()
 
-    if handle:
+    if processing:
         handler.start()
 
     return None
@@ -50,10 +50,10 @@ def process_run(handle, processing, items):
 @app.route('/start', methods=['POST'])
 def start():
     body = request.data or {}
-    handle = body.get('handle', True)
+    crawl = body.get('crawl', False)
     processing = body.get('processing', True)
     items = body.get('items', [JamEnDoSpider])
-    thread = Process(target=process_run, args=(handle, processing, items))
+    thread = Process(target=process_run, args=(crawl, processing, items))
     thread.start()
     return 'OK'
 

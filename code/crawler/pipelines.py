@@ -3,40 +3,37 @@ import logging
 import os
 import time
 
-from fs import filesize
 from scrapy.exporters import CsvItemExporter
 
-import config
-from monitoring.monitor import CrawlerMonitor
+from config import COUNT_EMIT_ITEMS
 from crawler.items import MusicItem
+from monitoring.monitor import FileMonitor
 
 
 class MusicPipeline(object):
     folder_path = 'results'
     current_time = None
-    count_artist = 0
-    count_song = 0
-    file_music_name = None
-    file_music = None
-    music = None
+    file_crawler_name = None
+    file_crawler = None
+    crawler = None
     file_artist_name = None
     file_artist = None
     artist = None
     is_start_export = False
-
-    def __init__(self):
-        pass
-        # self.monitor = CrawlerMonitor()
+    monitor = None
+    counter = 0
 
     def start_export(self, spider_name):
         self.current_time = time.strftime('%m_%d_%H_%M')
         folder_name = f'{spider_name}_{self.current_time}'
         self.create_folder(folder_name)
 
-        self.file_music_name = os.path.join(self.folder_path, folder_name, 'crawler.csv')
-        self.file_music = io.open(self.file_music_name, 'wb')
-        self.music = CsvItemExporter(self.file_music, encoding='utf-8')
-        self.music.start_exporting()
+        self.monitor = FileMonitor(spider_name)
+
+        self.file_crawler_name = os.path.join(self.folder_path, folder_name, 'crawler.csv')
+        self.file_crawler = io.open(self.file_crawler_name, 'wb')
+        self.crawler = CsvItemExporter(self.file_crawler, encoding='utf-8')
+        self.crawler.start_exporting()
 
         self.file_artist_name = os.path.join(self.folder_path, folder_name, 'artist.csv')
         self.file_artist = io.open(self.file_artist_name, 'wb')
@@ -45,35 +42,43 @@ class MusicPipeline(object):
 
         self.is_start_export = True
 
-    def close_spider(self, spider):
-        self.music.finish_exporting()
-        self.file_music.close()
-        # file_music_size = self.get_file_size(self.file_music_name)
-        # self.monitor.update_size(spider.name, 'song', file_music_size, self.count_song)
+    def close_spider(self, _):
+        self.crawler.finish_exporting()
+        self.file_crawler.close()
+        self.metrics_update('crawler', self.file_crawler_name)
 
         self.artist.finish_exporting()
         self.file_artist.close()
-        # file_artist_size = self.get_file_size(self.file_artist_name)
-        # self.monitor.update_size(spider.name, 'artist', file_artist_size, self.count_artist)
+        self.metrics_update('artist', self.file_artist_name)
 
     def process_item(self, item, spider):
         if not self.is_start_export:
             self.start_export(spider.name)
 
+        param = {}
         if isinstance(item, MusicItem):
-            self.music.export_item(item)
-            # self.count_song += 1
-            # if self.count_song % config.COUNT_EMIT_SONG_ITEMS == 0:
-            #     file_size = self.get_file_size(self.file_music_name)
-            #     self.monitor.update_size(spider.name, 'song', file_size, self.count_song)
+            self.crawler.export_item(item)
+            param.update({
+                'name': 'crawler',
+                'file': self.file_crawler_name
+            })
         else:
-            # self.count_artist += 1
-            # if self.count_artist % config.COUNT_EMIT_ARTIST_ITEMS == 0:
-            #     file_size = self.get_file_size(self.file_artist_name)
-                # self.monitor.update_size(spider.name, 'artist', file_size, self.count_artist)
-                # logging.info(f'Artist added {self.count_artist}')
             self.artist.export_item(item)
+            param.update({
+                'name': 'artist',
+                'file': self.file_artist_name
+            })
+
+        if self.counter and not self.counter % COUNT_EMIT_ITEMS:
+            self.metrics_update(**param)
+            self.counter = 0
+        else:
+            self.counter += 1
         return item
+
+    def metrics_update(self, name, file):
+        file_size = self.get_file_size(file)
+        self.monitor.update_file_size(name, file_size)
 
     def create_folder(self, folder_name):
         path = os.path.join(self.folder_path, folder_name)
@@ -86,4 +91,4 @@ class MusicPipeline(object):
 
     @staticmethod
     def get_file_size(file_name):
-        return filesize.traditional(os.path.getsize(os.path.abspath(file_name)))
+        return os.path.getsize(os.path.abspath(file_name)) >> 20
