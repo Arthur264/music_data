@@ -16,3 +16,6 @@ requests
 # Metrics
 flask_prometheus
 prometheus-client
+
+# GCP
+google-cloud-storage

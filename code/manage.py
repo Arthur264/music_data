@@ -3,8 +3,9 @@ import os
 import sys
 from multiprocessing import Process
 
-from flask import Flask, request
+from flask import Flask, request, Response
 from flask_prometheus import monitor
+from prometheus_client import CollectorRegistry, multiprocess, generate_latest, CONTENT_TYPE_LATEST
 from scrapy.crawler import CrawlerProcess
 from scrapy.utils.log import configure_logging
 from scrapy.utils.project import get_project_settings
@@ -15,7 +16,7 @@ from monitoring.config import CONFIG
 from processing import handler
 
 os.path.dirname(sys.modules['__main__'].__file__)
-
+os.environ['prometheus_multiproc_dir'] = '/home/arthur264/Documents/music_data/prometheus_dir'
 LOGGER_FORMAT = '%(asctime)s %(message)s'
 configure_logging(install_root_handler=True)
 logging.basicConfig(
@@ -50,12 +51,20 @@ def process_run(crawl, processing, items):
 @app.route('/start', methods=['POST'])
 def start():
     body = request.data or {}
-    crawl = body.get('crawl', False)
-    processing = body.get('processing', True)
+    crawl = body.get('crawl', True)
+    processing = body.get('processing', False)
     items = body.get('items', [JamEnDoSpider])
     thread = Process(target=process_run, args=(crawl, processing, items))
     thread.start()
     return 'OK'
+
+
+@app.route('/metrics')
+def metrics():
+    registry = CollectorRegistry()
+    multiprocess.MultiProcessCollector(registry)
+    data = generate_latest(registry)
+    return Response(data, mimetype=CONTENT_TYPE_LATEST)
 
 
 if __name__ == '__main__':
