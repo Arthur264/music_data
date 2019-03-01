@@ -5,6 +5,7 @@ services:
     depends_on:
       - prometheus
       - grafana
+    command: python manage.py
     ports:
       - 8080:8080
     volumes:
@@ -18,14 +19,12 @@ services:
       - ./prometheus/:/etc/prometheus/
     ports:
       - 9090:9090
-    restart: always
   grafana:
     image: grafana/grafana:5.0.4
     ports:
       - 3000:3000
     volumes:
       - grafana_data:/var/lib/grafana
-    restart: always
 
 volumes:
   grafana_data:

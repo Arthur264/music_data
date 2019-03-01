@@ -5,7 +5,7 @@ class CrawlerMonitor(object):
 
     def __init__(self, spider_name):
         self.spider_name = spider_name
-        self.metrics = PrometheusMetrics('crawler_item', ['spider_name', 'type'])
+        self.metrics = PrometheusMetrics(f'crawler_item_{spider_name}', ['spider_name', 'type'])
 
     def update_artist_count(self):
         self.metrics.inc({
@@ -24,7 +24,7 @@ class FileMonitor(object):
 
     def __init__(self, spider_name):
         self.spider_name = spider_name
-        self.metrics = PrometheusGaugeMetrics('file_item', ['spider_name', 'type'])
+        self.metrics = PrometheusGaugeMetrics(f'file_item_{spider_name}', ['spider_name', 'type'])
 
     def update_file_size(self, file_type, file_size):
         labels = {

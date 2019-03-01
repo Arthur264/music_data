@@ -5,19 +5,17 @@ import scrapy
 from crawler.items import MusicItem, ArtistItem
 from crawler.spiders.base import BaseSpider
 
-BASE_URL = 'https://solr.jamendo.com/solr/jamcom?rows=1000&q=*&start=25'
-
 
 class JamEnDoSpider(BaseSpider):
     name = 'jam_en_do'
     song_url = 'https://storage.jamendo.com/download/track/{}/mp35/'
     count_rows = 1000
-    api_url = 'https://solr.jamendo.com/solr/jamcom?rows=1000&q=*&start={}'
+    api_url = 'https://solr.jamendo.com/solr/jamcom?rows=1000&q=*&start={0}'
     start_urls = [api_url.format(0)]
-    custom_settings = {
-        'RETRY_HTTP_CODES': [500, 502, 503, 504, 400, 403, 404, 405, 408, 410, 110, 111, 112, 113],
-        'DOWNLOAD_DELAY': 0.25,
-    }
+
+    def __init__(self, *args, **kwargs):
+        self.custom_settings['DOWNLOAD_DELAY'] = 0.25
+        super().__init__(*args, **kwargs)
 
     def parse(self, response):
         start = response.meta.get('start', 0) + self.count_rows

@@ -42,8 +42,8 @@ def get_files(folder_name='results'):
 def before_processing():
     remove_folder(config.PROCESSING_DIR)
     create_folder(config.PROCESSING_DIR)
-    create_folder('log', exist=True)
-    clear_file('log/log.txt')
+    create_folder(config.LOG_FOLDER, exist=True)
+    clear_file(config.LOG_FILE)
 
 
 def get_task(files, rotate, is_artist=False):
@@ -103,7 +103,7 @@ def start():
     try:
         loop.run_until_complete(main(loop))
     except Exception as e:
-        with io.open('log/log.txt', 'a') as log_file:
+        with io.open(config.LOG_FILE, 'a') as log_file:
             log_file.write(str(e))
             log_file.write(traceback.format_exc())
     finally:

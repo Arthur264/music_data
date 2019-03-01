@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 import sys
@@ -12,6 +13,7 @@ from scrapy.utils.project import get_project_settings
 
 from crawler import settings
 from crawler.spiders.jam_en_do import JamEnDoSpider
+from crawler.spiders.zk import ZkSpider
 from monitoring.config import CONFIG
 from processing import handler
 
@@ -50,12 +52,12 @@ def process_run(crawl, processing, items):
 
 @app.route('/start', methods=['POST'])
 def start():
-    body = request.data or {}
+    body = json.loads(request.data)
     crawl = body.get('crawl', True)
     processing = body.get('processing', False)
-    items = body.get('items', [JamEnDoSpider])
-    thread = Process(target=process_run, args=(crawl, processing, items))
-    thread.start()
+    items = body.get('items', [JamEnDoSpider, ZkSpider])
+    sub_process = Process(target=process_run, args=(crawl, processing, items))
+    sub_process.start()
     return 'OK'
 
 

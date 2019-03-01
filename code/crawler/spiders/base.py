@@ -21,6 +21,7 @@ class BaseSpider(scrapy.Spider):
     base_url = None
     test_mode = TEST_MODE
     custom_settings = {
+        'RETRY_HTTP_CODES': [500, 502, 503, 504, 400, 403, 404, 405, 408, 410],
         'DEFAULT_REQUEST_HEADERS': HEADERS
     }
 

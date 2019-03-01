@@ -22,8 +22,10 @@ class MusicPipeline(object):
     is_start_export = False
     monitor = None
     counter = 0
+    spider_name = None
 
     def start_export(self, spider_name):
+        self.spider_name = spider_name
         self.current_time = time.strftime('%m_%d_%H_%M')
         folder_name = f'{spider_name}_{self.current_time}'
         self.create_folder(folder_name)
@@ -50,6 +52,7 @@ class MusicPipeline(object):
         self.artist.finish_exporting()
         self.file_artist.close()
         self.metrics_update('artist', self.file_artist_name)
+        logging.info(f'Spider close: {self.spider_name}')
 
     def process_item(self, item, spider):
         if not self.is_start_export:
