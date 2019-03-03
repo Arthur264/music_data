@@ -40,7 +40,15 @@ class BaseSpider(scrapy.Spider):
     def gc_clear():
         gc.collect()
 
-    @staticmethod
-    def error(response):
-        logging.error('Error:', response)
-        return True
+    def error(self, response):
+        iteration = response.request.meta.get('iteration', 0) + 1
+        if iteration < self.settings['RETRY_TIMES']:
+            request = scrapy.Request(
+                url=response.request.meta.get('redirect_urls', [response.request.url])[0],
+                callback=response.request.callback,
+                errback=response.request.errback,
+                meta=response.request.meta,
+            )
+            request.meta['dont_merge_cookies'] = True
+            request.meta['iteration'] = iteration
+            yield request

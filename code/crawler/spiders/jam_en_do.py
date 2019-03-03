@@ -47,5 +47,6 @@ class JamEnDoSpider(BaseSpider):
             meta={
                 'start': start,
             },
+            errback=self.error,
             callback=self.parse,
         )

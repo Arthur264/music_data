@@ -79,5 +79,6 @@ class ZkSpider(BaseSpider):
                     'dont_merge_cookie': True,
                     'artist_name': artist_name,
                 },
+                errback=self.error,
                 callback=self.get_items,
             )
