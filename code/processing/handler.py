@@ -5,7 +5,7 @@ import os
 import threading
 import time
 import traceback
-from itertools import chain
+from itertools import chain, islice
 
 import pandas as pd
 from tqdm import tqdm
@@ -51,15 +51,14 @@ def get_task(files, rotate, is_artist=False):
         tp = pd.read_csv(
             file_name,
             chunksize=10 * 3,
-            low_memory=False,
+            low_memory=True,
             names=COLUMN_NAMES_ARTIST if is_artist else COLUMN_NAMES_MUSIC,
         )
-        df = pd.concat(tp)
-        for _, row in df.iterrows():
-            row_dict = row.to_dict()
-            row_type = 'artist' if is_artist else 'song'
-            instance = ProcessingTask(body=row_dict, task_type=row_type, rotate=rotate)
-            yield instance
+        for df in tp:
+            for _, row in df.iterrows():
+                row_dict = row.to_dict()
+                row_type = 'artist' if is_artist else 'song'
+                yield ProcessingTask(body=row_dict, task_type=row_type, rotate=rotate)
 
 
 def monitoring_task_count(loop):
@@ -79,6 +78,15 @@ def monitoring_task_count(loop):
         time.sleep(1)
 
 
+def make_chunks(iterable, size=10):
+    while True:
+        result = islice(iterable, size)
+        if not result:
+            break
+
+        yield result
+
+
 async def main(loop):
     before_processing()
     music_files, artist_files = get_files()
@@ -92,9 +100,9 @@ async def main(loop):
 
     semaphore = asyncio.Semaphore(config.COUNT_TASK_EVENT_LOOP)
     monitor = ProcessMonitor()
-    # for chucks in make_chunks(tasks_gen, size=config.COUNT_TASK_EVENT_LOOP):
-    await asyncio.gather(*[asyncio.ensure_future(chuck.run(semaphore, monitor)) for chuck in tasks_gen])
-    await asyncio.gather(*[rotate_artist.complete(), rotate_song.complete()])
+    for chucks in make_chunks(tasks_gen, size=config.COUNT_TASK_CHUNKS):
+        await asyncio.gather(*[asyncio.ensure_future(chuck.run(semaphore, monitor)) for chuck in chucks])
+        await asyncio.gather(*[rotate_artist.complete(), rotate_song.complete()])
 
 
 def start():
